@@ -32,6 +32,11 @@ spring:
             bindings:
                 output:
                     destination: topic-jhipster
+    data:
+        mongodb:
+            host: localhost
+            port: 0
+            database: jobscheduler
     mail:
         host: localhost
     messages:
@@ -69,7 +74,7 @@ jhipster:
         authentication:
             jwt:
                 # This token must be encoded using Base64 (you can type `echo 'secret-key'|base64` on your command line)
-                base64-secret: NmRhNDI3MzdiNTJlYmE3MTUzZjNlZGVhNWNjMThjN2VjZTc1N2UzY2M4Y2JiM2E0NDAwY2E1MzMzZDljODkzMDJlZjRkZGIwMjU1NzI5ZWU0MmU5ODI1YjczZDk4ODQ3Y2ZlMDZkODY0NGQwMDBhNTkxYmMyZTIxNTM3NjkyMjc=
+                base64-secret: ZWRkZTRhZmI3ODUyOTgxMzc1YzBmYzZlNDQ4MzhkYWU0MDU1NmJkZGNiMTEzOWMxYWY5YWZhZGUyMWY2MmVjZjBlZGEwOTk3MmE2OTU1MGViOTdlOGU5OWMyYjMzNzg2YzUyMDhmNzRmMWE1MjVkNjUwMTQ2YmViNzJkMDdiZTQ=
                 # Token is valid 24 hours
                 token-validity-in-seconds: 86400
     metrics: # DropWizard Metrics configuration, used by MetricsConfiguration

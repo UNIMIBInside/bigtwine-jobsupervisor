@@ -7,9 +7,15 @@ services:
             - SPRING_PROFILES_ACTIVE=prod,swagger
             - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/eureka
             - SPRING_CLOUD_CONFIG_URI=http://admin:$${jhipster.registry.password}@jhipster-registry:8761/config
+            - SPRING_DATA_MONGODB_URI=mongodb://jobscheduler-mongodb:27017
+            - SPRING_DATA_MONGODB_DATABASE=jobscheduler
             - JHIPSTER_SLEEP=30 # gives time for the JHipster Registry to boot before the application
             - SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS=kafka
             - SPRING_CLOUD_STREAM_KAFKA_BINDER_ZK_NODES=zookeeper
+    jobscheduler-mongodb:
+        extends:
+            file: mongodb.yml
+            service: jobscheduler-mongodb
     kafka:
         extends:
             file: kafka.yml
