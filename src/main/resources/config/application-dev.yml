@@ -17,7 +17,7 @@ logging:
     level:
         ROOT: DEBUG
         io.github.jhipster: DEBUG
-        it.unimib.disco.bigtwine.services.jobscheduler: DEBUG
+        it.unimib.disco.bigtwine.services.jobsupervisor: DEBUG
 
 eureka:
     instance:
@@ -53,7 +53,7 @@ spring:
     data:
         mongodb:
             uri: mongodb://localhost:27017
-            database: jobscheduler
+            database: jobsupervisor
     mail:
         host: localhost
         port: 25
@@ -98,12 +98,12 @@ jhipster:
         authentication:
             jwt:
                 # This token must be encoded using Base64 and be at least 256 bits long (you can type `openssl rand -base64 64` on your command line to generate a 512 bits one)
-                base64-secret: ZWRkZTRhZmI3ODUyOTgxMzc1YzBmYzZlNDQ4MzhkYWU0MDU1NmJkZGNiMTEzOWMxYWY5YWZhZGUyMWY2MmVjZjBlZGEwOTk3MmE2OTU1MGViOTdlOGU5OWMyYjMzNzg2YzUyMDhmNzRmMWE1MjVkNjUwMTQ2YmViNzJkMDdiZTQ=
+                base64-secret: NTE5ZDU1NWIwNjQ1YmJjOGRlZmM3NDVhYWYxODgxZWNlZTA5MTIyYTNhMjNiMGMwYTcxYjQwMTIxZDBkMzU4NzhmZTgyN2JlZmZkZDA1ODdhNmY2ZGRiZDA4NzBkM2MwYWQyZDNkMTQ5NjFlNmExOTEyN2VhNWFhMzNlMmM1NGQ=
                 # Token is valid 24 hours
                 token-validity-in-seconds: 86400
                 token-validity-in-seconds-for-remember-me: 2592000
     mail: # specific JHipster mail property, for standard properties see MailProperties
-        from: jobscheduler@localhost
+        from: jobsupervisor@localhost
         base-url: http://127.0.0.1:9007
     metrics: # DropWizard Metrics configuration, used by MetricsConfiguration
         jmx:

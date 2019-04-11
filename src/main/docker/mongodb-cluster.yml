@@ -1,16 +1,16 @@
 version: '2'
 services:
-    jobscheduler-mongodb:
+    jobsupervisor-mongodb:
         image: mongo:4.0.2
         ports:
             - "27017:27017"
-        command: mongos --configdb jobscheduler-mongodb-config
-    jobscheduler-mongodb-node:
+        command: mongos --configdb jobsupervisor-mongodb-config
+    jobsupervisor-mongodb-node:
         build:
             context: .
             dockerfile: mongodb/MongoDB.Dockerfile
         command: mongod --replSet rs1 --noprealloc --smallfiles
-    jobscheduler-mongodb-config:
+    jobsupervisor-mongodb-config:
         image: mongo:4.0.2
-        container_name: jobscheduler-mongodb-config
+        container_name: jobsupervisor-mongodb-config
         command: mongod --noprealloc --smallfiles --configsvr --dbpath /data/db

@@ -47,13 +47,13 @@ dependencyManagement {
 
 defaultTasks 'bootRun'
 
-group = 'it.unimib.disco.bigtwine.services.jobscheduler'
+group = 'it.unimib.disco.bigtwine.services.jobsupervisor'
 version = '0.0.1-SNAPSHOT'
 
 description = ''
 
 bootWar {
-   mainClassName = 'it.unimib.disco.bigtwine.services.jobscheduler.JobschedulerApp'
+   mainClassName = 'it.unimib.disco.bigtwine.services.jobsupervisor.JobsupervisorApp'
 }
 
 war {
@@ -62,7 +62,7 @@ war {
 }
 
 springBoot {
-    mainClassName = 'it.unimib.disco.bigtwine.services.jobscheduler.JobschedulerApp'
+    mainClassName = 'it.unimib.disco.bigtwine.services.jobsupervisor.JobsupervisorApp'
     buildInfo()
 }
 

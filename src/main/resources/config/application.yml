@@ -24,8 +24,8 @@ eureka:
         instance-info-replication-interval-seconds: 10
         registry-fetch-interval-seconds: 10
     instance:
-        appname: jobscheduler
-        instanceId: jobscheduler:${spring.application.instance-id:${random.value}}
+        appname: jobsupervisor
+        instanceId: jobsupervisor:${spring.application.instance-id:${random.value}}
         lease-renewal-interval-in-seconds: 5
         lease-expiration-duration-in-seconds: 10
         status-page-url-path: ${management.endpoints.web.base-path}/info
@@ -81,7 +81,7 @@ management:
 
 spring:
     application:
-        name: jobscheduler
+        name: jobsupervisor
     messages:
         basename: i18n/messages
     mvc:
@@ -121,11 +121,11 @@ jhipster:
         #allow-credentials: true
         #max-age: 1800
     mail:
-        from: jobscheduler@localhost
+        from: jobsupervisor@localhost
     swagger:
         default-include-pattern: /api/.*
-        title: jobscheduler API
-        description: jobscheduler API documentation
+        title: jobsupervisor API
+        description: jobsupervisor API documentation
         version: 0.0.1
         terms-of-service-url:
         contact-name:

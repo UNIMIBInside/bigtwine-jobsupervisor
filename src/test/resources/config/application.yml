@@ -17,12 +17,12 @@ eureka:
     client:
         enabled: false
     instance:
-        appname: jobscheduler
-        instanceId: jobscheduler:${spring.application.instance-id:${random.value}}
+        appname: jobsupervisor
+        instanceId: jobsupervisor:${spring.application.instance-id:${random.value}}
 
 spring:
     application:
-        name: jobscheduler
+        name: jobsupervisor
     cloud:
         stream:
             kafka:
@@ -36,7 +36,7 @@ spring:
         mongodb:
             host: localhost
             port: 0
-            database: jobscheduler
+            database: jobsupervisor
     mail:
         host: localhost
     messages:
@@ -74,7 +74,7 @@ jhipster:
         authentication:
             jwt:
                 # This token must be encoded using Base64 (you can type `echo 'secret-key'|base64` on your command line)
-                base64-secret: ZWRkZTRhZmI3ODUyOTgxMzc1YzBmYzZlNDQ4MzhkYWU0MDU1NmJkZGNiMTEzOWMxYWY5YWZhZGUyMWY2MmVjZjBlZGEwOTk3MmE2OTU1MGViOTdlOGU5OWMyYjMzNzg2YzUyMDhmNzRmMWE1MjVkNjUwMTQ2YmViNzJkMDdiZTQ=
+                base64-secret: NTE5ZDU1NWIwNjQ1YmJjOGRlZmM3NDVhYWYxODgxZWNlZTA5MTIyYTNhMjNiMGMwYTcxYjQwMTIxZDBkMzU4NzhmZTgyN2JlZmZkZDA1ODdhNmY2ZGRiZDA4NzBkM2MwYWQyZDNkMTQ5NjFlNmExOTEyN2VhNWFhMzNlMmM1NGQ=
                 # Token is valid 24 hours
                 token-validity-in-seconds: 86400
     metrics: # DropWizard Metrics configuration, used by MetricsConfiguration
