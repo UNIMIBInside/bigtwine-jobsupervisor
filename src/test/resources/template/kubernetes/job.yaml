@@ -1,0 +1,12 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+    name: testjob
+spec:
+    template:
+        spec:
+            containers:
+                - name: pi
+                  image: perl
+            restartPolicy: Never
+    backoffLimit: 4
