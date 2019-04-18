@@ -6,6 +6,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
+import it.unimib.disco.bigtwine.services.jobsupervisor.config.Constants;
+import it.unimib.disco.bigtwine.services.jobsupervisor.security.AuthoritiesConstants;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,6 +31,8 @@ public class TokenProvider {
     private final Logger log = LoggerFactory.getLogger(TokenProvider.class);
 
     private static final String AUTHORITIES_KEY = "auth";
+
+    private static final String DETAILS_KEY = "details";
 
     private Key key;
 
@@ -81,6 +87,14 @@ public class TokenProvider {
             .compact();
     }
 
+    public String createSystemToken() {
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(AuthoritiesConstants.ADMIN));
+        Authentication authentication = new UsernamePasswordAuthenticationToken(Constants.SYSTEM_ACCOUNT, null, authorities);
+
+        return this.createToken(authentication, false);
+    }
+
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts.parser()
             .setSigningKey(key)
@@ -92,9 +106,19 @@ public class TokenProvider {
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
-        User principal = new User(claims.getSubject(), "", authorities);
+        Map<Object, Object> details = null;
+        if (claims.get(DETAILS_KEY) != null) {
+            details = URLEncodedUtils
+                .parse(claims.get(DETAILS_KEY).toString(), StandardCharsets.UTF_8)
+                .stream()
+                .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
+        }
 
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+        User principal = new User(claims.getSubject(), "", authorities);
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principal, token, authorities);
+        authentication.setDetails(details);
+
+        return authentication;
     }
 
     public boolean validateToken(String authToken) {
