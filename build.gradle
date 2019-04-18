@@ -208,6 +208,9 @@ dependencies {
     testCompile "org.hamcrest:hamcrest-library"
     testCompile "org.springframework.cloud:spring-cloud-stream-test-support"
     //jhipster-needle-gradle-dependency - JHipster will add additional dependencies here
+    compile "io.kubernetes:client-java:4.0.0"
+    compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.3'
+    compile project(':commons')
 }
 
 task cleanResources(type: Delete) {
