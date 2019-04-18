@@ -89,6 +89,14 @@ spring:
             enabled: false
     thymeleaf:
         mode: HTML
+    cloud:
+        stream:
+            bindings:
+                analysisStatusChangedChannel:
+                    destination: analysis-status-changes
+                    content-type: application/json
+                analysisStatusChangeRequestsChannel:
+                    destination: analysis-status-change-requests
 
 server:
     servlet:
