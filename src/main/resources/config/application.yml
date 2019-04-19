@@ -151,4 +151,11 @@ jhipster:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
+application:
+    twitter-neel:
+        stream:
+            default-lang: en
+            sampling: -1
+            flink-job:
+                jar-name: "StreamProcessor.jar"
+                jar-class: "it.unimib.disco.bigtwine.streamprocessor.TwitterStreamJob"

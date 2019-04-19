@@ -9,6 +9,10 @@ public interface KubernetesObjectLoader {
         return this.getKubernetesObjectSpec(null, clazz);
     }
 
+    default Object getKubernetesObjectSpec(Map<String, Object> variables) {
+        return this.getKubernetesObjectSpec(variables, Object.class);
+    }
+
     default Object getKubernetesObjectSpec() {
         return this.getKubernetesObjectSpec(null, Object.class);
     }
