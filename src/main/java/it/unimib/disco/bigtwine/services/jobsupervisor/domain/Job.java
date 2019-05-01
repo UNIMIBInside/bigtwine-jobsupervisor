@@ -12,7 +12,7 @@ import java.time.Instant;
 
 @Document(collection = "jobs")
 @CompoundIndexes({
-    @CompoundIndex(name = "analysis_id", def = "{ 'analysis_info.id': 1 }")
+    @CompoundIndex(def = "{ 'analysis.id': 1 }", name = "analysis_id")
 })
 public class Job {
 
@@ -22,10 +22,10 @@ public class Job {
     private String id;
 
     @NotNull
-    @Field("analysis_info")
+    @Field("analysis")
     private AnalysisInfo analysis;
 
-    @Field("job_process")
+    @Field("process")
     private JobProcess process;
 
     @Field("start_date")
@@ -36,6 +36,16 @@ public class Job {
 
     @Field("end_reason")
     private String endReason;
+
+    @Field("last_update_date")
+    private Instant lastUpdateDate;
+
+    @Field("last_heartbeat_date")
+    private Instant lastHeartbeatDate;
+
+    @Field("running")
+    private boolean running;
+
 
     public Job() {
     }
@@ -86,5 +96,29 @@ public class Job {
 
     public void setEndReason(String endReason) {
         this.endReason = endReason;
+    }
+
+    public Instant getLastUpdateDate() {
+        return lastUpdateDate;
+    }
+
+    public void setLastUpdateDate(Instant lastUpdateDate) {
+        this.lastUpdateDate = lastUpdateDate;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
+
+    public Instant getLastHeartbeatDate() {
+        return lastHeartbeatDate;
+    }
+
+    public void setLastHeartbeatDate(Instant lastHeartbeatDate) {
+        this.lastHeartbeatDate = lastHeartbeatDate;
     }
 }

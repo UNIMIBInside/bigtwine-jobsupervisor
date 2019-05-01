@@ -9,6 +9,9 @@ public abstract class AbstractJobProcess implements JobProcess {
 
     private Map<String, ?> extraData = new HashMap<>();
 
+    public AbstractJobProcess() {
+    }
+
     public AbstractJobProcess(String pid) {
         this.pid = pid;
     }
@@ -16,6 +19,10 @@ public abstract class AbstractJobProcess implements JobProcess {
     @Override
     public String getPID() {
         return this.pid;
+    }
+
+    public void setPid(String pid) {
+        this.pid = pid;
     }
 
     @Override

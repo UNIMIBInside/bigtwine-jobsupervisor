@@ -60,6 +60,6 @@ public class AnalysisInfo {
     }
 
     public boolean isQueryInputType() {
-        return "query".equals(this.inputType);
+        return "QUERY".equals(this.inputType);
     }
 }

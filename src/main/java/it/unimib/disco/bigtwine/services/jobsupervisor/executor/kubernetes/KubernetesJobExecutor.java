@@ -1,5 +1,6 @@
 package it.unimib.disco.bigtwine.services.jobsupervisor.executor.kubernetes;
 
+import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobExecutable;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobExecutor;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobProcess;
 
@@ -20,7 +21,12 @@ public class KubernetesJobExecutor implements JobExecutor<KubernetesJobProcess, 
     }
 
     @Override
-    public boolean isSupported(JobProcess process) {
+    public boolean test(JobProcess process) {
         return process instanceof KubernetesJobProcess;
+    }
+
+    @Override
+    public boolean test(JobExecutable executable) {
+        return executable instanceof KubernetesJobExecutable;
     }
 }

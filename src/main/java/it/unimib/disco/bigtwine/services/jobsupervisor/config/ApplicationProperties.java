@@ -26,6 +26,7 @@ public class ApplicationProperties {
         public static class Stream {
             private String defaultLang = ApplicationDefaults.TwitterNeel.Stream.defaultLang;
             private int sampling = ApplicationDefaults.TwitterNeel.Stream.sampling;
+            private int heartbeat = ApplicationDefaults.TwitterNeel.Stream.heartbeat;
             private FlinkJob flinkJob = new FlinkJob();
 
             public String getDefaultLang() {
@@ -44,13 +45,30 @@ public class ApplicationProperties {
                 this.sampling = sampling;
             }
 
+            public int getHeartbeat() {
+                return heartbeat;
+            }
+
+            public void setHeartbeat(int heartbeat) {
+                this.heartbeat = heartbeat;
+            }
+
             public FlinkJob getFlinkJob() {
                 return flinkJob;
             }
 
             public static class FlinkJob {
+                private String javaBin = ApplicationDefaults.TwitterNeel.Stream.FlinkJob.javaBin;
                 private String jarName = ApplicationDefaults.TwitterNeel.Stream.FlinkJob.jarName;
                 private String jarClass = ApplicationDefaults.TwitterNeel.Stream.FlinkJob.jarClass;
+
+                public String getJavaBin() {
+                    return javaBin;
+                }
+
+                public void setJavaBin(String javaBin) {
+                    this.javaBin = javaBin;
+                }
 
                 public String getJarName() {
                     return jarName;

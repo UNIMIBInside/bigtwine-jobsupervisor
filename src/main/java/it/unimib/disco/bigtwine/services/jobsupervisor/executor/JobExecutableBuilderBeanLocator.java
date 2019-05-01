@@ -17,7 +17,7 @@ public class JobExecutableBuilderBeanLocator implements JobExecutableBuilderLoca
     }
 
     @Override
-    public JobExecutableBuilder getJobExecutableBuilder(Job job) {
+    public JobExecutableBuilder<?> getJobExecutableBuilder(Job job) {
         if (job == null || job.getAnalysis() == null ||  job.getAnalysis().getType() == null) {
             return null;
         }
