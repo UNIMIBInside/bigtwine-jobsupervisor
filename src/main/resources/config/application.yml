@@ -97,6 +97,8 @@ spring:
                     content-type: application/json
                 analysisStatusChangeRequestsChannel:
                     destination: analysis-status-change-requests
+                JobHeartbeatsChannel:
+                    destination: job-heartbeats
 
 server:
     servlet:
@@ -156,6 +158,8 @@ application:
         stream:
             default-lang: en
             sampling: -1
+            heartbeat: 30
             flink-job:
+                java-bin: "java"
                 jar-name: "StreamProcessor.jar"
                 jar-class: "it.unimib.disco.bigtwine.streamprocessor.TwitterStreamJob"
