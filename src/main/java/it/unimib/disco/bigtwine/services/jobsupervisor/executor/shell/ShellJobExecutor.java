@@ -17,21 +17,23 @@ public class ShellJobExecutor implements JobExecutor<ShellJobProcess, ShellJobEx
 
     private Map<String, Process> processes = new HashMap<>();
 
-    @Override
-    public boolean isRunning(ShellJobProcess process) {
+    private void validateProcess(ShellJobProcess process) throws JobExecutorException {
         if (!this.processes.containsKey(process.getPID())) {
-            return false;
+            throw new JobExecutorException(String.format("Process with pid %s not found", process.getPID()));
         }
+    }
+
+    @Override
+    public boolean isRunning(ShellJobProcess process) throws JobExecutorException {
+        this.validateProcess(process);
 
         Process nativeProcess = this.processes.get(process.getPID());
         return nativeProcess.isAlive();
     }
 
     @Override
-    public boolean stop(ShellJobProcess process) {
-        if (!this.processes.containsKey(process.getPID())) {
-            return false;
-        }
+    public boolean stop(ShellJobProcess process) throws JobExecutorException {
+        this.validateProcess(process);
 
         Process nativeProcess = this.processes.get(process.getPID());
         nativeProcess.destroy();
@@ -39,7 +41,7 @@ public class ShellJobExecutor implements JobExecutor<ShellJobProcess, ShellJobEx
     }
 
     @Override
-    public ShellJobProcess execute(ShellJobExecutable executable) {
+    public ShellJobProcess execute(ShellJobExecutable executable) throws JobExecutorException {
         ProcessBuilder builder = new ProcessBuilder();
         builder.command(executable.getShellCommand());
 
@@ -51,7 +53,7 @@ public class ShellJobExecutor implements JobExecutor<ShellJobProcess, ShellJobEx
             return new ShellJobProcess(pid);
         } catch (IOException e) {
             log.error("Cannot run executable", e);
-            return null;
+            throw new JobExecutorException(String.format("Cannot run executable: %s", e.getLocalizedMessage()));
         }
     }
 

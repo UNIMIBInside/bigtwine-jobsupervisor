@@ -68,8 +68,14 @@ public class JobSupervisor {
                 executable.getClass(), this.jobExecutor.getClass()));
         }
 
-        @SuppressWarnings("unchecked")
-        JobProcess process =  this.jobExecutor.execute(executable);
+        JobProcess process = null;
+        try {
+            @SuppressWarnings("unchecked")
+            JobProcess p = this.jobExecutor.execute(executable);
+            process = p;
+        } catch (JobExecutor.JobExecutorException e) {
+            e.printStackTrace();
+        }
 
         if (process == null) {
             this.jobService.endJob(newJob.getId(), "Job executable cannot be launched");
@@ -97,8 +103,14 @@ public class JobSupervisor {
                 job.getProcess().getClass(), this.jobExecutor.getClass()));
         }
 
-        @SuppressWarnings("unchecked")
-        boolean stopped = this.jobExecutor.stop(job.getProcess());
+        boolean stopped = false;
+        try {
+            @SuppressWarnings("unchecked")
+            boolean s = this.jobExecutor.stop(job.getProcess());
+            stopped = s;
+        } catch (JobExecutor.JobExecutorException e) {
+            e.printStackTrace();
+        }
 
         if (stopped) {
             job = this.jobService.endJob(job.getId(), "Job successfull stopped");
