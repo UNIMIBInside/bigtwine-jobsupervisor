@@ -27,7 +27,7 @@ public class JobRepositoryTest {
         AnalysisInfo analysisInfo = new AnalysisInfo();
         analysisInfo.setId("456");
 
-        JobProcess jobProcess = new KubernetesJobProcess("123");
+        JobProcess jobProcess = new KubernetesJobProcess("batch/v1", "Job", "1");
 
         Job job = new Job();
         job.setAnalysis(analysisInfo);

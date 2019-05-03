@@ -11,7 +11,12 @@ public interface ApplicationDefaults {
                 String javaBin = "java";
                 String jarName = "StreamProcessor.jar";
                 String jarClass = "it.unimib.disco.bigtwine.streamprocessor.TwitterStreamJob";
+                String kubernetesTemplate = "";
             }
         }
+    }
+
+    interface Kubernetes {
+        String namespace = "";
     }
 }

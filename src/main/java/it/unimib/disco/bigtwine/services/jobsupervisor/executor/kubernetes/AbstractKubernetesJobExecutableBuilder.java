@@ -45,7 +45,7 @@ public abstract class AbstractKubernetesJobExecutableBuilder extends AbstractJob
 
     protected String buildKubernetesObjectName() {
         AnalysisInfo analysis = this.getJob().getAnalysis();
-        return String.format("job-%s-%s", analysis.getType(), analysis.getId());
+        return String.format("job-%s-%s-%s", this.getJob().getId(), analysis.getType(), analysis.getId());
     }
 
     protected Object buildKubernetesObject() throws BuildException {

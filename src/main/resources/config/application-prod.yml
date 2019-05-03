@@ -138,4 +138,10 @@ jhipster:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
+application:
+    kubernetes:
+        namespace: bigtwine
+    twitter-neel:
+        stream:
+            flink-job:
+                kubernetes-template: ""

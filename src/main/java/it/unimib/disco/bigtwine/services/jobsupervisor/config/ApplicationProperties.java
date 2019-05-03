@@ -11,9 +11,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "application", ignoreUnknownFields = false)
 public class ApplicationProperties {
     private TwitterNeel twitterNeel = new TwitterNeel();
+    private Kubernetes kubernetes = new Kubernetes();
 
     public TwitterNeel getTwitterNeel() {
         return twitterNeel;
+    }
+
+    public Kubernetes getKubernetes() {
+        return kubernetes;
     }
 
     public static class TwitterNeel {
@@ -61,6 +66,7 @@ public class ApplicationProperties {
                 private String javaBin = ApplicationDefaults.TwitterNeel.Stream.FlinkJob.javaBin;
                 private String jarName = ApplicationDefaults.TwitterNeel.Stream.FlinkJob.jarName;
                 private String jarClass = ApplicationDefaults.TwitterNeel.Stream.FlinkJob.jarClass;
+                private String kubernetesTemplate = ApplicationDefaults.TwitterNeel.Stream.FlinkJob.kubernetesTemplate;
 
                 public String getJavaBin() {
                     return javaBin;
@@ -85,7 +91,27 @@ public class ApplicationProperties {
                 public void setJarClass(String jarClass) {
                     this.jarClass = jarClass;
                 }
+
+                public String getKubernetesTemplate() {
+                    return kubernetesTemplate;
+                }
+
+                public void setKubernetesTemplate(String kubernetesTemplate) {
+                    this.kubernetesTemplate = kubernetesTemplate;
+                }
             }
+        }
+    }
+
+    public static class Kubernetes {
+        private String namespace = ApplicationDefaults.Kubernetes.namespace;
+
+        public String getNamespace() {
+            return namespace;
+        }
+
+        public void setNamespace(String namespace) {
+            this.namespace = namespace;
         }
     }
 }
