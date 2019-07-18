@@ -1,12 +1,14 @@
 package it.unimib.disco.bigtwine.services.jobsupervisor.domain;
 
+import javax.validation.constraints.NotNull;
+import java.util.Map;
+
 public class AnalysisInfo {
+
     private String id;
     private String type;
-    private String inputType;
     private String owner;
-    private String query;
-    private String documentId;
+    private Map<String, Object> input;
 
     public AnalysisInfo() {
     }
@@ -35,31 +37,35 @@ public class AnalysisInfo {
         this.owner = owner;
     }
 
-    public String getInputType() {
-        return inputType;
+    public Map<String, Object> getInput() {
+        return input;
     }
 
-    public void setInputType(String inputType) {
-        this.inputType = inputType;
-    }
-
-    public String getQuery() {
-        return query;
-    }
-
-    public void setQuery(String query) {
-        this.query = query;
-    }
-
-    public String getDocumentId() {
-        return documentId;
-    }
-
-    public void setDocumentId(String documentId) {
-        this.documentId = documentId;
+    public void setInput(Map<String, Object> input) {
+        this.input = input;
     }
 
     public boolean isQueryInputType() {
-        return "QUERY".equals(this.inputType);
+        return this._checkInputType("QUERY");
+    }
+
+    public boolean isDatasetInputType() {
+        return this._checkInputType("DATASET");
+    }
+
+    private boolean _checkInputType(@NotNull String inputType) {
+        return this.input != null && inputType.equals(this.input.get(InputKeys.TYPE));
+    }
+
+    public static class InputKeys {
+        // All
+        public static final String TYPE = "type";
+
+        // Query
+        public static final String TOKENS = "tokens";
+        public static final String JOIN_OPERATOR = "joinOperator";
+
+        // Dataset
+        public static final String DOCUMENT_ID = "documentId";
     }
 }

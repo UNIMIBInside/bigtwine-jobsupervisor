@@ -6,6 +6,7 @@ import it.unimib.disco.bigtwine.services.jobsupervisor.domain.AnalysisInfo;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.Job;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.OAuthCredentials;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobExecutableBuilder;
+import it.unimib.disco.bigtwine.services.jobsupervisor.executor.TwitterNeelUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,8 +69,15 @@ public class FlinkTwitterNeelJobExecutableBuilderHelper implements JobExecutable
             String streamLang = this.applicationProperties.getTwitterNeel().getStream().getDefaultLang();
             String streamSampling = String.valueOf(this.applicationProperties.getTwitterNeel().getStream().getSampling());
             String streamHeartbeat = String.valueOf(this.applicationProperties.getTwitterNeel().getStream().getHeartbeat());
+            String query = TwitterNeelUtil.flattifyAnalysisInput(analysis);
+
+            if (query == null) {
+                throw new JobExecutableBuilder
+                    .BuildException(String.format("Cannot flattify analysis input: %s}", analysis.getInput()));
+            }
+
             Collections.addAll(args,
-                "--twitter-stream-query", analysis.getQuery(),
+                "--twitter-stream-query", TwitterNeelUtil.flattifyAnalysisInput(analysis),
                 "--twitter-stream-lang", streamLang,
                 "--twitter-stream-sampling", streamSampling,
                 "--heartbeat-interval", streamHeartbeat

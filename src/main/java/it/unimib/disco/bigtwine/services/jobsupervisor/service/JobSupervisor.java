@@ -38,6 +38,7 @@ public class JobSupervisor {
         this.jobExecutableBuilderLocator = jobExecutableBuilderLocator;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     private Job startAnalysisJob(String analysisId) throws JobExecutionException {
         Job newJob;
         try {
@@ -126,6 +127,7 @@ public class JobSupervisor {
         return job;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     private Job cancelAnalysisJob(String analysisId) throws JobExecutionException {
         return this.stopAnalysisJob(analysisId, true);
     }
