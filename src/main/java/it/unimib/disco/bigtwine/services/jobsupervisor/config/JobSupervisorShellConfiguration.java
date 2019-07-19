@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT)
-public class JobSupervisorDevConfiguration {
+@Profile("!docker & !" + JHipsterConstants.SPRING_PROFILE_K8S)
+public class JobSupervisorShellConfiguration {
     @Bean("TWITTER_NEEL")
     public JobExecutableBuilder getFlinkTwitterNeelShellJobExecutableBuilder(FlinkTwitterNeelJobExecutableBuilderHelper helper) {
         return new ShellJobExecutableBuilder(helper);
