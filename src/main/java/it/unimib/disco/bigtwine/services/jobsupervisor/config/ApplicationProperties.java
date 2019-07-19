@@ -1,5 +1,6 @@
 package it.unimib.disco.bigtwine.services.jobsupervisor.config;
 
+import it.unimib.disco.bigtwine.services.jobsupervisor.executor.docker.DockerJobExecutorConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -12,6 +13,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ApplicationProperties {
     private TwitterNeel twitterNeel = new TwitterNeel();
     private Kubernetes kubernetes = new Kubernetes();
+    private Docker docker = new Docker();
 
     public TwitterNeel getTwitterNeel() {
         return twitterNeel;
@@ -19,6 +21,10 @@ public class ApplicationProperties {
 
     public Kubernetes getKubernetes() {
         return kubernetes;
+    }
+
+    public Docker getDocker() {
+        return docker;
     }
 
     public static class TwitterNeel {
@@ -112,6 +118,38 @@ public class ApplicationProperties {
 
         public void setNamespace(String namespace) {
             this.namespace = namespace;
+        }
+    }
+
+    public static class Docker implements DockerJobExecutorConfig {
+        private String networkId = ApplicationDefaults.Docker.networkId;
+        private String imageName = ApplicationDefaults.Docker.imageName;
+        private String dockerHost = ApplicationDefaults.Docker.dockerHost;
+
+        @Override
+        public String getNetworkId() {
+            return networkId;
+        }
+
+        public void setNetworkId(String networkId) {
+            this.networkId = networkId;
+        }
+
+        @Override
+        public String getImageName() {
+            return imageName;
+        }
+
+        public void setImageName(String imageName) {
+            this.imageName = imageName;
+        }
+
+        public String getDockerHost() {
+            return dockerHost;
+        }
+
+        public void setDockerHost(String dockerHost) {
+            this.dockerHost = dockerHost;
         }
     }
 }

@@ -19,4 +19,10 @@ public interface ApplicationDefaults {
     interface Kubernetes {
         String namespace = "";
     }
+
+    interface Docker {
+        String imageName = "bigtwine-streamprocessor";
+        String networkId = "bigtwine_default";
+        String dockerHost = "tcp://host.docker.internal:9075";
+    }
 }
