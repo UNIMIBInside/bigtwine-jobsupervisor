@@ -60,9 +60,8 @@ public class DockerJobExecutor implements JobExecutor<DockerJobProcess, DockerJo
         try {
             container = dockerClient.createContainerCmd(executable.getImageName())
                 .withHostConfig(HostConfig.newHostConfig()
-                    .withAutoRemove(true))
+                    .withAutoRemove(this.config.getAutoremoveContainer()))
                 .withCmd(executable.getContainerCmd())
-
                 .exec();
         } catch (DockerClientException | DockerException e) {
             throw new JobExecutorException(
@@ -84,7 +83,7 @@ public class DockerJobExecutor implements JobExecutor<DockerJobProcess, DockerJo
             try {
                 dockerClient.connectToNetworkCmd()
                     .withContainerId(container.getId())
-                    .withContainerId(this.config.getNetworkId())
+                    .withNetworkId(this.config.getNetworkId())
                     .exec();
             } catch (DockerClientException | DockerException e) {
                 throw new JobExecutorException(

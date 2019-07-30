@@ -33,14 +33,6 @@ public class DockerJobExecutableBuilder extends AbstractJobExecutableBuilder<Doc
     }
 
     private List<String> buildContainerCommand() throws BuildException {
-        List<String> containerCmd = new ArrayList<>();
-
-        List<String> cmd = this.helper.buildExecutableCommand(this.getJob());
-        List<String> args = this.helper.buildExecutableArgs(this.getJob());
-
-        containerCmd.addAll(cmd);
-        containerCmd.addAll(args);
-
-        return containerCmd;
+        return this.helper.buildExecutableArgs(this.getJob());
     }
 }

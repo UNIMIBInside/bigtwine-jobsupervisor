@@ -21,8 +21,9 @@ public interface ApplicationDefaults {
     }
 
     interface Docker {
-        String imageName = "bigtwine-streamprocessor";
+        String imageName = "bigtwine/flink-streamprocessor";
         String networkId = "bigtwine_default";
         String dockerHost = "tcp://host.docker.internal:9075";
+        boolean autoremoveContainer = true;
     }
 }

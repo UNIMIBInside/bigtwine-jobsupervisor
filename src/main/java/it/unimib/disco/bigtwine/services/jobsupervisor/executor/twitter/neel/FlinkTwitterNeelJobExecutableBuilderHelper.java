@@ -1,5 +1,7 @@
 package it.unimib.disco.bigtwine.services.jobsupervisor.executor.twitter.neel;
 
+import com.google.common.escape.Escaper;
+import com.google.common.escape.Escapers;
 import it.unimib.disco.bigtwine.services.jobsupervisor.client.SocialsServiceClient;
 import it.unimib.disco.bigtwine.services.jobsupervisor.config.ApplicationProperties;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.AnalysisInfo;
@@ -16,6 +18,11 @@ import java.util.List;
 public class FlinkTwitterNeelJobExecutableBuilderHelper implements JobExecutableBuilder.BuilderHelper {
     private final ApplicationProperties applicationProperties;
     private final SocialsServiceClient socialsServiceClient;
+
+    @SuppressWarnings("UnstableApiUsage")
+    private final Escaper SHELL_ESCAPE = Escapers.builder()
+        .addEscape('\'', "'\"'\"'")
+        .build();
 
     public FlinkTwitterNeelJobExecutableBuilderHelper(ApplicationProperties applicationProperties, SocialsServiceClient socialsServiceClient) {
         this.applicationProperties = applicationProperties;
@@ -37,10 +44,17 @@ public class FlinkTwitterNeelJobExecutableBuilderHelper implements JobExecutable
 
     @Override
     public List<String> buildExecutableCommand(Job job) throws JobExecutableBuilder.BuildException {
-        AnalysisInfo analysis = job.getAnalysis();
-
         String javaBin = this.applicationProperties.getTwitterNeel().getStream().getFlinkJob().getJavaBin();
         String jarName = this.applicationProperties.getTwitterNeel().getStream().getFlinkJob().getJarName();
+
+        return Arrays.asList(javaBin, "-cp", jarName);
+    }
+
+    @Override
+    public List<String> buildExecutableArgs(Job job) throws JobExecutableBuilder.BuildException {
+        AnalysisInfo analysis = job.getAnalysis();
+        OAuthCredentials credentials = getTwitterCredentials(job);
+
         String className;
 
         if (analysis.isQueryInputType()) {
@@ -49,14 +63,8 @@ public class FlinkTwitterNeelJobExecutableBuilderHelper implements JobExecutable
             throw new UnsupportedOperationException();
         }
 
-        return Arrays.asList(javaBin, "-cp", jarName, className);
-    }
-
-    @Override
-    public List<String> buildExecutableArgs(Job job) throws JobExecutableBuilder.BuildException {
-        AnalysisInfo analysis = job.getAnalysis();
-        OAuthCredentials credentials = getTwitterCredentials(job);
         List<String> args = new ArrayList<>(Arrays.asList(
+            className,
             "--job-id", job.getId(),
             "--analysis-id", analysis.getId(),
             "--twitter-token", credentials.getAccessToken(),
@@ -77,7 +85,7 @@ public class FlinkTwitterNeelJobExecutableBuilderHelper implements JobExecutable
             }
 
             Collections.addAll(args,
-                "--twitter-stream-query", TwitterNeelUtil.flattifyAnalysisInput(analysis),
+                "--twitter-stream-query", String.format("'%s'", SHELL_ESCAPE.escape(query)),
                 "--twitter-stream-lang", streamLang,
                 "--twitter-stream-sampling", streamSampling,
                 "--heartbeat-interval", streamHeartbeat

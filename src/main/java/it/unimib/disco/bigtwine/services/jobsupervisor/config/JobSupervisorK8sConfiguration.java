@@ -44,7 +44,7 @@ public class JobSupervisorK8sConfiguration {
     }
 
     @Bean
-    public JobExecutor getJobExecutor(ApplicationProperties props) {
+    public JobExecutor getKubernetesJobExecutor(ApplicationProperties props) {
         String namespace = props.getKubernetes().getNamespace();
 
         return new KubernetesJobExecutor(getKubernetesApiClient(), namespace);

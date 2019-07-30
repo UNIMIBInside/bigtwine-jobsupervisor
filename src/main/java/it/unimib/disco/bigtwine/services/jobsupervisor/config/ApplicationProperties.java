@@ -125,6 +125,7 @@ public class ApplicationProperties {
         private String networkId = ApplicationDefaults.Docker.networkId;
         private String imageName = ApplicationDefaults.Docker.imageName;
         private String dockerHost = ApplicationDefaults.Docker.dockerHost;
+        private boolean autoremoveContainer = ApplicationDefaults.Docker.autoremoveContainer;
 
         @Override
         public String getNetworkId() {
@@ -150,6 +151,14 @@ public class ApplicationProperties {
 
         public void setDockerHost(String dockerHost) {
             this.dockerHost = dockerHost;
+        }
+
+        public boolean getAutoremoveContainer() {
+            return autoremoveContainer;
+        }
+
+        public void setAutoremoveContainer(boolean autoremoveContainer) {
+            this.autoremoveContainer = autoremoveContainer;
         }
     }
 }

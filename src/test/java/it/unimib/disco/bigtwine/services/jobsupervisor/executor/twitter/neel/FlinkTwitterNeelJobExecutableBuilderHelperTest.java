@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +63,7 @@ public class FlinkTwitterNeelJobExecutableBuilderHelperTest {
         assertEquals("eeffgghh", argsMap.get("--twitter-token-secret"));
         assertEquals("123456", argsMap.get("--twitter-consumer-key"));
         assertEquals("78910", argsMap.get("--twitter-consumer-secret"));
-        assertEquals("testquery", argsMap.get("--twitter-stream-query"));
+        assertEquals("'testquery'", argsMap.get("--twitter-stream-query"));
         assertEquals("en", argsMap.get("--twitter-stream-lang"));
         assertEquals("-1", argsMap.get("--twitter-stream-sampling"));
         assertEquals("30", argsMap.get("--heartbeat-interval"));
@@ -75,11 +76,15 @@ public class FlinkTwitterNeelJobExecutableBuilderHelperTest {
     }
 
     private Job createJob() {
+        Map<String, Object> input = new HashMap<>();
+        input.put(AnalysisInfo.InputKeys.TYPE, "query");
+        input.put(AnalysisInfo.InputKeys.TOKENS, Arrays.asList("test", "query"));
+        input.put(AnalysisInfo.InputKeys.JOIN_OPERATOR, "all");
+
         AnalysisInfo analysis = new AnalysisInfo();
         analysis.setId("testanalysis-1");
         analysis.setType("TWITTER_NEEL");
-        analysis.setInputType("QUERY");
-        analysis.setQuery("testquery");
+        analysis.setInput(input);
         analysis.setOwner("testuser-1");
 
         Job job = new Job();

@@ -13,15 +13,18 @@ public class TwitterNeelUtil {
     public static String flattifyAnalysisInput(AnalysisInfo analysis) {
         try {
             if (analysis.isQueryInputType()) {
-                String joinOperator = (String) analysis.getInput().get(AnalysisInfo.InputKeys.JOIN_OPERATOR);
+                String joinOperator = ((String) analysis.getInput()
+                    .get(AnalysisInfo.InputKeys.JOIN_OPERATOR))
+                    .toLowerCase();
                 @SuppressWarnings("unchecked")
                 List<String> tokens = (List<String>) analysis.getInput().get(AnalysisInfo.InputKeys.TOKENS);
 
-                if (joinOperator.equals("all")) {
+                if (joinOperator.equals("any")) {
                     return String.join(",", tokens);
-                } else if (joinOperator.equals("any")) {
+                } else if (joinOperator.equals("all")) {
                     return String.join(" ", tokens);
                 } else {
+                    log.debug("Cannot flattify query input, Invalid join operator: {}", joinOperator);
                     return null;
                 }
             } else if (analysis.isDatasetInputType()) {

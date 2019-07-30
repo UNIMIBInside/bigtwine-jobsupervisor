@@ -1,6 +1,5 @@
 package it.unimib.disco.bigtwine.services.jobsupervisor.config;
 
-import io.github.jhipster.config.JHipsterConstants;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobExecutableBuilder;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobExecutor;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.shell.ShellJobExecutableBuilder;
@@ -11,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile("!docker & !" + JHipsterConstants.SPRING_PROFILE_K8S)
+@Profile("shell")
 public class JobSupervisorShellConfiguration {
     @Bean("TWITTER_NEEL")
     public JobExecutableBuilder getFlinkTwitterNeelShellJobExecutableBuilder(FlinkTwitterNeelJobExecutableBuilderHelper helper) {
@@ -19,7 +18,7 @@ public class JobSupervisorShellConfiguration {
     }
 
     @Bean
-    public JobExecutor getJobExecutor() {
+    public JobExecutor getShellJobExecutor() {
         return new ShellJobExecutor();
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @FeignClient(name = "socials")
 public interface SocialsServiceClient {
-    @RequestMapping("/api/connection/{provider}/{user}")
+    @RequestMapping("/api/oauth/connection/{provider}/{user}")
     OAuthCredentials findOAuthCredentials(@PathVariable("provider") String provider, @PathVariable("user") String userId);
 
     default OAuthCredentials findTwitterOAuthCredentials(String userId) {
