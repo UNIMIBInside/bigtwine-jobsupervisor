@@ -1,10 +1,13 @@
 package it.unimib.disco.bigtwine.services.jobsupervisor.service;
 
+import it.unimib.disco.bigtwine.commons.messaging.AnalysisProgressUpdateEvent;
 import it.unimib.disco.bigtwine.commons.messaging.AnalysisStatusChangedEvent;
 import it.unimib.disco.bigtwine.commons.messaging.JobHeartbeatEvent;
 import it.unimib.disco.bigtwine.commons.models.AnalysisStatusEnum;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.Job;
+import it.unimib.disco.bigtwine.services.jobsupervisor.domain.enumeration.JobType;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.*;
+import it.unimib.disco.bigtwine.services.jobsupervisor.messaging.AnalysisProgressUpdatesProducerChannel;
 import it.unimib.disco.bigtwine.services.jobsupervisor.messaging.AnalysisStatusChangeRequestConsumerChannel;
 import it.unimib.disco.bigtwine.services.jobsupervisor.messaging.AnalysisStatusChangedProducerChannel;
 import it.unimib.disco.bigtwine.commons.messaging.AnalysisStatusChangeRequestedEvent;
@@ -17,6 +20,8 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.messaging.MessageChannel;
 
+import java.time.Instant;
+
 @Service
 public class JobSupervisor {
 
@@ -24,16 +29,19 @@ public class JobSupervisor {
 
     private final JobService jobService;
     private final MessageChannel statusChangedChannel;
+    private final MessageChannel progressUpdatesChannel;
     private final JobExecutor jobExecutor;
     private final JobExecutableBuilderLocator jobExecutableBuilderLocator;
 
     public JobSupervisor(
         JobService jobService,
-        AnalysisStatusChangedProducerChannel channel,
+        AnalysisStatusChangedProducerChannel statusChannel,
+        AnalysisProgressUpdatesProducerChannel progressChannel,
         JobExecutor jobExecutor,
         JobExecutableBuilderLocator jobExecutableBuilderLocator) {
         this.jobService = jobService;
-        this.statusChangedChannel = channel.analysisStatusChangedChannel();
+        this.statusChangedChannel = statusChannel.analysisStatusChangedChannel();
+        this.progressUpdatesChannel = progressChannel.analysisProgressUpdateChannel();
         this.jobExecutor = jobExecutor;
         this.jobExecutableBuilderLocator = jobExecutableBuilderLocator;
     }
@@ -146,6 +154,20 @@ public class JobSupervisor {
         this.statusChangedChannel.send(message);
     }
 
+    private void notifyAnalysisProgressUpdate(String analysisId, JobType jobType, double progress, Instant timestamp) {
+        AnalysisProgressUpdateEvent event = new AnalysisProgressUpdateEvent();
+        event.setAnalysisId(analysisId);
+        event.setJobType(jobType.name());
+        event.setProgress(progress);
+        event.setTimestamp(timestamp);
+
+        Message<AnalysisProgressUpdateEvent> message = MessageBuilder
+            .withPayload(event)
+            .build();
+
+        this.progressUpdatesChannel.send(message);
+    }
+
     @StreamListener(AnalysisStatusChangeRequestConsumerChannel.CHANNEL)
     public void newAnalysisStatusChangeRequest(AnalysisStatusChangeRequestedEvent event) {
         String analysisId = event.getAnalysisId();
@@ -196,7 +218,19 @@ public class JobSupervisor {
         }
 
         try {
-            this.jobService.saveJobHeartbeat(event.getJobId(), event.getTimestamp());
+            Job job = this.jobService.saveJobHeartbeat(
+                event.getJobId(),
+                event.getTimestamp(),
+                event.getProgress(),
+                event.isLast());
+
+            if (job.getProgress() >= 0) {
+                this.notifyAnalysisProgressUpdate(
+                    job.getAnalysis().getId(),
+                    job.getJobType(),
+                    job.getProgress(),
+                    event.getTimestamp());
+            }
         }catch (JobService.NoSuchJobException e) {
             e.printStackTrace();
         }

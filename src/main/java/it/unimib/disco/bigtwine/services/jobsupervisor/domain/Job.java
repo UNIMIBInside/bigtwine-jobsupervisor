@@ -1,5 +1,6 @@
 package it.unimib.disco.bigtwine.services.jobsupervisor.domain;
 
+import it.unimib.disco.bigtwine.services.jobsupervisor.domain.enumeration.JobType;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobProcess;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -20,6 +21,10 @@ public class Job {
 
     @Id
     private String id;
+
+    @NotNull
+    @Field("job_type")
+    private JobType jobType;
 
     @NotNull
     @Field("analysis")
@@ -46,8 +51,13 @@ public class Job {
     @Field("running")
     private boolean running;
 
+    @Field("progress")
+    private double progress;
+
 
     public Job() {
+        this.jobType = JobType.DEFAULT;
+        this.progress = -1;
     }
 
     public String getId() {
@@ -56,6 +66,14 @@ public class Job {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public JobType getJobType() {
+        return jobType;
+    }
+
+    public void setJobType(JobType jobType) {
+        this.jobType = jobType;
     }
 
     public AnalysisInfo getAnalysis() {
@@ -120,5 +138,13 @@ public class Job {
 
     public void setLastHeartbeatDate(Instant lastHeartbeatDate) {
         this.lastHeartbeatDate = lastHeartbeatDate;
+    }
+
+    public double getProgress() {
+        return progress;
+    }
+
+    public void setProgress(double progress) {
+        this.progress = progress;
     }
 }

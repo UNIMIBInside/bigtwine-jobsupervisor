@@ -95,6 +95,9 @@ spring:
                 analysisStatusChangedChannel:
                     destination: analysis-status-changes
                     content-type: application/json
+                analysisProgressUpdateChannel:
+                    destination: analysis-progress-updates
+                    content-type: application/json
                 analysisStatusChangeRequestsChannel:
                     destination: analysis-status-change-requests
                 JobHeartbeatsChannel:

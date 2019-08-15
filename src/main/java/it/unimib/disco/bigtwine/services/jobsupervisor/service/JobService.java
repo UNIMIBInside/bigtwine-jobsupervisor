@@ -80,7 +80,7 @@ public class JobService {
             .max(Comparator.comparing(Job::getLastUpdateDate));
     }
 
-    public Job saveJobHeartbeat(String jobId, Instant timestamp) {
+    public Job saveJobHeartbeat(String jobId, Instant timestamp, double progress, boolean isLast) {
         Job job = this.jobRepository.findById(jobId)
             .orElseThrow(NoSuchJobException::new);
 
@@ -90,6 +90,16 @@ public class JobService {
 
         job.setLastHeartbeatDate(timestamp);
         job.setLastUpdateDate(Instant.now());
+
+        if (progress >= 0) {
+            job.setProgress(progress);
+        }
+
+        if (isLast) {
+            job.setRunning(false);
+            job.setEndDate(timestamp);
+            job.setEndReason("Job completed");
+        }
 
         return this.jobRepository.save(job);
     }
