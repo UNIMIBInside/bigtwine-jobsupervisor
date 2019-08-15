@@ -49,8 +49,16 @@ public class AnalysisInfo {
         return this._checkInputType("QUERY");
     }
 
+    public boolean isBoundingBoxesInputType() {
+        return this._checkInputType("BOUNDING_BOXES");
+    }
+
     public boolean isDatasetInputType() {
         return this._checkInputType("DATASET");
+    }
+
+    public boolean isStreamAnalysis() {
+        return this.isQueryInputType() || this.isDatasetInputType();
     }
 
     private boolean _checkInputType(@NotNull String inputType) {

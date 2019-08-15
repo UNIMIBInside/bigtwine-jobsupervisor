@@ -42,10 +42,47 @@ public class FlinkTwitterNeelJobExecutableBuilderHelper implements JobExecutable
         }
     }
 
+    private String flattifyAnalysisInput(AnalysisInfo analysis) throws JobExecutableBuilder.BuildException {
+        String flatInput = TwitterNeelUtil.flattifyAnalysisInput(analysis);
+
+        if (flatInput == null) {
+            throw new JobExecutableBuilder
+                .BuildException(String.format("Cannot flattify analysis input: %s}", analysis.getInput()));
+        }
+
+        return flatInput;
+    }
+
     @Override
     public List<String> buildExecutableCommand(Job job) throws JobExecutableBuilder.BuildException {
-        String javaBin = this.applicationProperties.getTwitterNeel().getStream().getFlinkJob().getJavaBin();
-        String jarName = this.applicationProperties.getTwitterNeel().getStream().getFlinkJob().getJarName();
+        AnalysisInfo analysis = job.getAnalysis();
+        String javaBin, jarName;
+
+        if (analysis.isStreamAnalysis()) {
+            javaBin = this.applicationProperties
+                .getTwitterNeel()
+                .getStream()
+                .getFlinkJob()
+                .getJavaBin();
+            jarName = this.applicationProperties
+                .getTwitterNeel()
+                .getStream()
+                .getFlinkJob()
+                .getJarName();
+        } else if (analysis.isDatasetInputType()) {
+            javaBin = this.applicationProperties
+                .getTwitterNeel()
+                .getDataset()
+                .getFlinkJob()
+                .getJavaBin();
+            jarName = this.applicationProperties
+                .getTwitterNeel()
+                .getDataset()
+                .getFlinkJob()
+                .getJarName();
+        } else {
+            throw new UnsupportedOperationException();
+        }
 
         return Arrays.asList(javaBin, "-cp", jarName);
     }
@@ -53,44 +90,70 @@ public class FlinkTwitterNeelJobExecutableBuilderHelper implements JobExecutable
     @Override
     public List<String> buildExecutableArgs(Job job) throws JobExecutableBuilder.BuildException {
         AnalysisInfo analysis = job.getAnalysis();
-        OAuthCredentials credentials = getTwitterCredentials(job);
 
         String className;
 
-        if (analysis.isQueryInputType()) {
-            className = this.applicationProperties.getTwitterNeel().getStream().getFlinkJob().getJarClass();
-        }else {
+        if (analysis.isStreamAnalysis()) {
+            className = this.applicationProperties
+                .getTwitterNeel()
+                .getStream()
+                .getFlinkJob()
+                .getJarClass();
+        } else if (analysis.isDatasetInputType()) {
+            className = this.applicationProperties
+                .getTwitterNeel()
+                .getDataset()
+                .getFlinkJob()
+                .getJarClass();
+        } else {
             throw new UnsupportedOperationException();
         }
 
         List<String> args = new ArrayList<>(Arrays.asList(
             className,
             "--job-id", job.getId(),
-            "--analysis-id", analysis.getId(),
-            "--twitter-token", credentials.getAccessToken(),
-            "--twitter-token-secret", credentials.getAccessTokenSecret(),
-            "--twitter-consumer-key", credentials.getConsumerKey(),
-            "--twitter-consumer-secret", credentials.getConsumerSecret()
+            "--analysis-id", analysis.getId()
         ));
 
-        if (analysis.isQueryInputType()) {
+        if (analysis.isStreamAnalysis()) {
+            OAuthCredentials credentials = getTwitterCredentials(job);
             String streamLang = this.applicationProperties.getTwitterNeel().getStream().getDefaultLang();
+            String streamSkipRetweets = this.applicationProperties.getTwitterNeel().getStream().isSkipRetweets() ? "true" : "false";
             String streamSampling = String.valueOf(this.applicationProperties.getTwitterNeel().getStream().getSampling());
             String streamHeartbeat = String.valueOf(this.applicationProperties.getTwitterNeel().getStream().getHeartbeat());
-            String query = TwitterNeelUtil.flattifyAnalysisInput(analysis);
-
-            if (query == null) {
-                throw new JobExecutableBuilder
-                    .BuildException(String.format("Cannot flattify analysis input: %s}", analysis.getInput()));
-            }
 
             Collections.addAll(args,
-                "--twitter-stream-query", String.format("'%s'", SHELL_ESCAPE.escape(query)),
+                "--twitter-token", credentials.getAccessToken(),
+                "--twitter-token-secret", credentials.getAccessTokenSecret(),
+                "--twitter-consumer-key", credentials.getConsumerKey(),
+                "--twitter-consumer-secret", credentials.getConsumerSecret(),
                 "--twitter-stream-lang", streamLang,
                 "--twitter-stream-sampling", streamSampling,
-                "--heartbeat-interval", streamHeartbeat
+                "--twitter-skip-retweets", streamSkipRetweets,
+                "--heartbeat-interval", streamHeartbeat);
+        }
+
+        if (analysis.isQueryInputType()) {
+            String query = this.flattifyAnalysisInput(analysis);
+
+            Collections.addAll(args,
+                "--twitter-stream-query", String.format("'%s'", SHELL_ESCAPE.escape(query))
             );
-        }else {
+        } else if (analysis.isBoundingBoxesInputType()) {
+            String boundingBoxes = this.flattifyAnalysisInput(analysis);
+
+            Collections.addAll(args,
+                "--twitter-stream-locations", String.format("'%s'", SHELL_ESCAPE.escape(boundingBoxes))
+            );
+        } else if (analysis.isDatasetInputType()) {
+            String documentId = this.flattifyAnalysisInput(analysis);
+            String heartbeatInterval = String.valueOf(this.applicationProperties.getTwitterNeel().getDataset().getHeartbeat());
+
+            Collections.addAll(args,
+                "--heartbeat-interval", heartbeatInterval,
+                "--dataset-document-id", String.format("'%s'", SHELL_ESCAPE.escape(documentId))
+            );
+        } else {
             throw new UnsupportedOperationException();
         }
 

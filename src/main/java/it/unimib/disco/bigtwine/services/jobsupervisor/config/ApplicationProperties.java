@@ -29,15 +29,21 @@ public class ApplicationProperties {
 
     public static class TwitterNeel {
         private Stream stream = new Stream();
+        private Dataset dataset = new Dataset();
 
         public Stream getStream() {
             return stream;
+        }
+
+        public Dataset getDataset() {
+            return dataset;
         }
 
         public static class Stream {
             private String defaultLang = ApplicationDefaults.TwitterNeel.Stream.defaultLang;
             private int sampling = ApplicationDefaults.TwitterNeel.Stream.sampling;
             private int heartbeat = ApplicationDefaults.TwitterNeel.Stream.heartbeat;
+            private boolean skipRetweets = ApplicationDefaults.TwitterNeel.Stream.skipRetweets;
             private FlinkJob flinkJob = new FlinkJob();
 
             public String getDefaultLang() {
@@ -64,6 +70,14 @@ public class ApplicationProperties {
                 this.heartbeat = heartbeat;
             }
 
+            public boolean isSkipRetweets() {
+                return skipRetweets;
+            }
+
+            public void setSkipRetweets(boolean skipRetweets) {
+                this.skipRetweets = skipRetweets;
+            }
+
             public FlinkJob getFlinkJob() {
                 return flinkJob;
             }
@@ -73,6 +87,62 @@ public class ApplicationProperties {
                 private String jarName = ApplicationDefaults.TwitterNeel.Stream.FlinkJob.jarName;
                 private String jarClass = ApplicationDefaults.TwitterNeel.Stream.FlinkJob.jarClass;
                 private String kubernetesTemplate = ApplicationDefaults.TwitterNeel.Stream.FlinkJob.kubernetesTemplate;
+
+                public String getJavaBin() {
+                    return javaBin;
+                }
+
+                public void setJavaBin(String javaBin) {
+                    this.javaBin = javaBin;
+                }
+
+                public String getJarName() {
+                    return jarName;
+                }
+
+                public void setJarName(String jarName) {
+                    this.jarName = jarName;
+                }
+
+                public String getJarClass() {
+                    return jarClass;
+                }
+
+                public void setJarClass(String jarClass) {
+                    this.jarClass = jarClass;
+                }
+
+                public String getKubernetesTemplate() {
+                    return kubernetesTemplate;
+                }
+
+                public void setKubernetesTemplate(String kubernetesTemplate) {
+                    this.kubernetesTemplate = kubernetesTemplate;
+                }
+            }
+        }
+
+        public static class Dataset {
+            private int heartbeat = ApplicationDefaults.TwitterNeel.Dataset.heartbeat;
+            private FlinkJob flinkJob = new FlinkJob();
+
+            public int getHeartbeat() {
+                return heartbeat;
+            }
+
+            public void setHeartbeat(int heartbeat) {
+                this.heartbeat = heartbeat;
+            }
+
+            public FlinkJob getFlinkJob() {
+                return flinkJob;
+            }
+
+            public static class FlinkJob {
+                private String javaBin = ApplicationDefaults.TwitterNeel.Dataset.FlinkJob.javaBin;
+                private String jarName = ApplicationDefaults.TwitterNeel.Dataset.FlinkJob.jarName;
+                private String jarClass = ApplicationDefaults.TwitterNeel.Dataset.FlinkJob.jarClass;
+                private String kubernetesTemplate = ApplicationDefaults.TwitterNeel.Dataset.FlinkJob.kubernetesTemplate;
 
                 public String getJavaBin() {
                     return javaBin;

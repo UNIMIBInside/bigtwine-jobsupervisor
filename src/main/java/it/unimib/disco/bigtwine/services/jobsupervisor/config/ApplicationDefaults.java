@@ -6,6 +6,18 @@ public interface ApplicationDefaults {
             String defaultLang = "en";
             int sampling = -1;
             int heartbeat = 30;
+            boolean skipRetweets = true;
+
+            interface FlinkJob {
+                String javaBin = "java";
+                String jarName = "StreamProcessor.jar";
+                String jarClass = "it.unimib.disco.bigtwine.streamprocessor.TwitterStreamJob";
+                String kubernetesTemplate = "";
+            }
+        }
+
+        interface Dataset {
+            int heartbeat = 5;
 
             interface FlinkJob {
                 String javaBin = "java";
