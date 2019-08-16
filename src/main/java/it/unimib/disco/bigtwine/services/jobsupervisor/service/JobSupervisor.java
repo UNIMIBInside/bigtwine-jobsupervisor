@@ -4,6 +4,7 @@ import it.unimib.disco.bigtwine.commons.messaging.AnalysisProgressUpdateEvent;
 import it.unimib.disco.bigtwine.commons.messaging.AnalysisStatusChangedEvent;
 import it.unimib.disco.bigtwine.commons.messaging.JobHeartbeatEvent;
 import it.unimib.disco.bigtwine.commons.models.AnalysisStatusEnum;
+import it.unimib.disco.bigtwine.commons.models.JobTypeEnum;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.Job;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.enumeration.JobType;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.*;
@@ -157,7 +158,7 @@ public class JobSupervisor {
     private void notifyAnalysisProgressUpdate(String analysisId, JobType jobType, double progress, Instant timestamp) {
         AnalysisProgressUpdateEvent event = new AnalysisProgressUpdateEvent();
         event.setAnalysisId(analysisId);
-        event.setJobType(jobType.name());
+        event.setJobType(JobTypeEnum.valueOf(jobType.name()));
         event.setProgress(progress);
         event.setTimestamp(timestamp);
 
