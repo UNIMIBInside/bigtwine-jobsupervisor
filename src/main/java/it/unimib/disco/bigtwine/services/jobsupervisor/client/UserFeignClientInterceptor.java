@@ -1,6 +1,5 @@
 package it.unimib.disco.bigtwine.services.jobsupervisor.client;
 
-import it.unimib.disco.bigtwine.services.jobsupervisor.security.SecurityUtils;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import it.unimib.disco.bigtwine.services.jobsupervisor.security.jwt.TokenProvider;

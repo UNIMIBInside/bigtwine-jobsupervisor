@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @FeignClient(name="analysis")
 public interface AnalysisServiceClient {
-    @RequestMapping("/api/analyses/{id}")
+    @RequestMapping("/api/public/analyses/{id}")
     AnalysisInfo findAnalysisById(@PathVariable(value="id") String id);
 }
