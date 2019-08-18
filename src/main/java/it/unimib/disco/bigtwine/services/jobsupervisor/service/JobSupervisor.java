@@ -59,11 +59,19 @@ public class JobSupervisor {
                 analysisId, e.getRunningJob().getId()));
         }
 
-        JobExecutableBuilder builder = this.jobExecutableBuilderLocator.getJobExecutableBuilder(newJob);
-        builder.setJob(newJob);
+        JobExecutableBuilder builder;
+        try {
+            builder = this.jobExecutableBuilderLocator.getJobExecutableBuilder(newJob);
+        } catch (JobExecutableBuilderLocator.JobExecutableBuilderNotFoundException e) {
+            log.debug("Job executable builder not found", e);
+            this.jobService.endJob(newJob.getId(), "Job executable builder not found");
+            throw new JobExecutionException(String.format("Job executable builder for analysis %s not available",
+                analysisId));
+        }
 
         JobExecutable executable;
         try {
+            builder.setJob(newJob);
             executable = builder.build();
         } catch (JobExecutableBuilder.BuildException e) {
             e.printStackTrace();
@@ -101,6 +109,15 @@ public class JobSupervisor {
             .findRunningJobForAnalysis(analysisId)
             .orElseThrow(() -> new JobExecutionException(String.format("Running job for analysis %s not found", analysisId)));
 
+        return stopJob(job, endJobIfStopFail);
+    }
+
+    private Job stopJob(Job job, boolean endJobIfStopFail) throws JobExecutionException {
+        if (job == null || job.getAnalysis() == null || job.getAnalysis().getId() == null) {
+            return null;
+        }
+
+        String analysisId = job.getAnalysis().getId();
         if (job.getProcess() == null) {
             this.jobService.endJob(job.getId(), "Job process missing");
             throw new JobExecutionException(String.format("Job executable for analysis %s has not a process associated",
@@ -134,6 +151,14 @@ public class JobSupervisor {
         }
 
         return job;
+    }
+
+    private Job stopJob(String jobId, boolean endJobIfStopFail) throws JobExecutionException {
+        Job job = this.jobService
+            .findById(jobId)
+            .orElseThrow(() -> new JobExecutionException(String.format("Job with id %s not found", jobId)));
+
+        return stopJob(job, endJobIfStopFail);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -232,8 +257,16 @@ public class JobSupervisor {
                     job.getProgress(),
                     event.getTimestamp());
             }
-        }catch (JobService.NoSuchJobException e) {
-            e.printStackTrace();
+
+            if (event.isLast()) {
+                stopJob(job, true);
+                this.notifyAnalysisStatusChange(job.getAnalysis().getId(), AnalysisStatusEnum.COMPLETED, false, null);
+            }
+
+        } catch (JobService.NoSuchJobException e) {
+            log.debug("Job not found", e);
+        } catch (JobExecutionException e) {
+            log.debug("Job cannot be stopped", e);
         }
     }
 
