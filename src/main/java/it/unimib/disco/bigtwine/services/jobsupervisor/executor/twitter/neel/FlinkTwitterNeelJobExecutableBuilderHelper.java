@@ -106,7 +106,7 @@ public class FlinkTwitterNeelJobExecutableBuilderHelper implements JobExecutable
                 .getFlinkJob()
                 .getJarClass();
         } else {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("Unsupported analysis input type: " + analysis.getInputType());
         }
 
         List<String> args = new ArrayList<>(Arrays.asList(
@@ -137,13 +137,13 @@ public class FlinkTwitterNeelJobExecutableBuilderHelper implements JobExecutable
             String query = this.flattifyAnalysisInput(analysis);
 
             Collections.addAll(args,
-                "--twitter-stream-query", String.format("'%s'", SHELL_ESCAPE.escape(query))
+                "--twitter-stream-query", String.format("\"%s\"", SHELL_ESCAPE.escape(query))
             );
         } else if (analysis.isBoundingBoxesInputType()) {
             String boundingBoxes = this.flattifyAnalysisInput(analysis);
 
             Collections.addAll(args,
-                "--twitter-stream-locations", String.format("'%s'", SHELL_ESCAPE.escape(boundingBoxes))
+                "--twitter-stream-locations", String.format("\"%s\"", SHELL_ESCAPE.escape(boundingBoxes))
             );
         } else if (analysis.isDatasetInputType()) {
             String documentId = this.flattifyAnalysisInput(analysis);
@@ -151,10 +151,10 @@ public class FlinkTwitterNeelJobExecutableBuilderHelper implements JobExecutable
 
             Collections.addAll(args,
                 "--heartbeat-interval", heartbeatInterval,
-                "--dataset-document-id", String.format("'%s'", SHELL_ESCAPE.escape(documentId))
+                "--dataset-document-id", documentId
             );
         } else {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("Unsupported analysis input type: " + analysis.getInputType());
         }
 
         return args;
