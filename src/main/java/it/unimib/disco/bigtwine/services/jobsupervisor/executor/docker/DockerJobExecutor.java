@@ -43,6 +43,10 @@ public class DockerJobExecutor implements JobExecutor<DockerJobProcess, DockerJo
 
     @Override
     public boolean stop(DockerJobProcess process) throws JobExecutorException {
+        if (!this.isRunning(process)) {
+            return true;
+        }
+
         try {
             dockerClient
                 .stopContainerCmd(process.getPID())
