@@ -45,24 +45,36 @@ public class AnalysisInfo {
         this.input = input;
     }
 
+    public String getInputType() {
+        if (this.input == null) {
+            return null;
+        }
+
+        return (String)this.input.get(InputKeys.TYPE);
+    }
+
     public boolean isQueryInputType() {
-        return this._checkInputType("QUERY");
+        return this._checkInputType(InputType.QUERY);
     }
 
     public boolean isBoundingBoxesInputType() {
-        return this._checkInputType("BOUNDING_BOXES");
+        return this._checkInputType(InputType.BOUNDING_BOXES);
     }
 
     public boolean isDatasetInputType() {
-        return this._checkInputType("DATASET");
+        return this._checkInputType(InputType.DATASET);
     }
 
     public boolean isStreamAnalysis() {
-        return this.isQueryInputType() || this.isDatasetInputType();
+        return this.isQueryInputType() || this.isBoundingBoxesInputType();
+    }
+
+    public boolean isDatasetAnalysis() {
+        return this.isDatasetInputType();
     }
 
     private boolean _checkInputType(@NotNull String inputType) {
-        return this.input != null && inputType.equals(this.input.get(InputKeys.TYPE));
+        return inputType.equals(this.getInputType());
     }
 
     public static class InputKeys {
@@ -75,5 +87,11 @@ public class AnalysisInfo {
 
         // Dataset
         public static final String DOCUMENT_ID = "documentId";
+    }
+
+    public static class InputType {
+        public static final String QUERY = "query";
+        public static final String BOUNDING_BOXES = "bounding-boxes";
+        public static final String DATASET = "dataset";
     }
 }
