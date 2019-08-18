@@ -5,6 +5,8 @@ import it.unimib.disco.bigtwine.services.jobsupervisor.domain.AnalysisInfo;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.Job;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobProcess;
 import it.unimib.disco.bigtwine.services.jobsupervisor.repository.JobRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +17,8 @@ import java.util.Optional;
 
 @Service
 public class JobService {
+
+    private static final Logger log = LoggerFactory.getLogger(JobService.class);
 
     private final JobRepository jobRepository;
     private final AnalysisServiceClient analysisServiceClient;
@@ -31,6 +35,7 @@ public class JobService {
         try {
             analysis = this.analysisServiceClient.findAnalysisById(analysisId);
         }catch(Exception e) {
+            log.error("Analysis {} not found", analysisId, e);
             throw new NoSuchAnalysisException();
         }
 
@@ -78,6 +83,10 @@ public class JobService {
         return this.jobRepository
             .findRunningJobForAnalysis(analysisId)
             .max(Comparator.comparing(Job::getLastUpdateDate));
+    }
+
+    public Optional<Job> findById(String jobId) {
+        return this.jobRepository.findById(jobId);
     }
 
     public Job saveJobHeartbeat(String jobId, Instant timestamp, double progress, boolean isLast) {
