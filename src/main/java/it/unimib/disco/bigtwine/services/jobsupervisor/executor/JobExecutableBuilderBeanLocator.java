@@ -24,6 +24,13 @@ public class JobExecutableBuilderBeanLocator implements JobExecutableBuilderLoca
 
         String analysisType = job.getAnalysis().getType();
 
+        if (analysisType != null) {
+            analysisType = analysisType
+                .toUpperCase()
+                .replace("-", "_")
+                .replace(" ", "_");
+        }
+
         try {
             return BeanFactoryAnnotationUtils.qualifiedBeanOfType(
                 this.contextProvider.getBeanFactory(),
