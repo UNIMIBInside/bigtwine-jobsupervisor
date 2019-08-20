@@ -211,10 +211,11 @@ public class JobSupervisor {
                 failMessage = e.getMessage();
                 e.printStackTrace();
             }
-        }else if (desiredStatus == AnalysisStatusEnum.STOPPED) {
+        }else if (desiredStatus == AnalysisStatusEnum.STOPPED ||
+            desiredStatus == AnalysisStatusEnum.COMPLETED) {
             try {
                 this.stopAnalysisJob(analysisId, false);
-                newStatus = AnalysisStatusEnum.STOPPED;
+                newStatus = desiredStatus;
             }catch (JobExecutionException e) {
                 newStatus = null;
                 failMessage = e.getMessage();
