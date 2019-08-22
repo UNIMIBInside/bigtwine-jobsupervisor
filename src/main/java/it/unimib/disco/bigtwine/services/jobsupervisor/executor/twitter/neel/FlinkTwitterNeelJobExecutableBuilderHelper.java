@@ -7,6 +7,7 @@ import it.unimib.disco.bigtwine.services.jobsupervisor.config.ApplicationPropert
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.AnalysisInfo;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.Job;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.OAuthCredentials;
+import it.unimib.disco.bigtwine.services.jobsupervisor.domain.UserInfo;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobExecutableBuilder;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.TwitterNeelUtil;
 
@@ -34,9 +35,9 @@ public class FlinkTwitterNeelJobExecutableBuilderHelper implements JobExecutable
             throw new JobExecutableBuilder.BuildException("Job's analysis owner info missing");
         }
 
-        String analysisOwner = job.getAnalysis().getOwner();
+        UserInfo analysisOwner = job.getAnalysis().getOwner();
         try {
-            return this.socialsServiceClient.findTwitterOAuthCredentials(analysisOwner);
+            return this.socialsServiceClient.findTwitterOAuthCredentials(analysisOwner.getUid());
         }catch (Exception e) {
             throw new JobExecutableBuilder.BuildException("Cannot retrieve twitter credentials for analysis owner: " + analysisOwner);
         }

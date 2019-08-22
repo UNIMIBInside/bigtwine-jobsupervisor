@@ -166,7 +166,7 @@ public class JobSupervisor {
         return this.stopAnalysisJob(analysisId, true);
     }
 
-    private void notifyAnalysisStatusChange(String analysisId, AnalysisStatusEnum newStatus, String user, String failMessage) {
+    private void notifyAnalysisStatusChange(String analysisId, AnalysisStatusEnum newStatus, Object user, String failMessage) {
         AnalysisStatusChangedEvent event = new AnalysisStatusChangedEvent();
         event.setAnalysisId(analysisId);
         event.setStatus(newStatus);
@@ -197,7 +197,7 @@ public class JobSupervisor {
     @StreamListener(AnalysisStatusChangeRequestConsumerChannel.CHANNEL)
     public void newAnalysisStatusChangeRequest(AnalysisStatusChangeRequestedEvent event) {
         String analysisId = event.getAnalysisId();
-        String user = event.getUser();
+        Object user = event.getUser();
         AnalysisStatusEnum desiredStatus = event.getDesiredStatus();
         AnalysisStatusEnum newStatus;
         String failMessage = null;

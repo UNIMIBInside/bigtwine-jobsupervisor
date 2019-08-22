@@ -1,13 +1,14 @@
 package it.unimib.disco.bigtwine.services.jobsupervisor.domain;
 
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.Map;
 
-public class AnalysisInfo {
+public class AnalysisInfo implements Serializable {
 
     private String id;
     private String type;
-    private String owner;
+    private UserInfo owner;
     private Map<String, Object> input;
 
     public AnalysisInfo() {
@@ -29,11 +30,11 @@ public class AnalysisInfo {
         this.type = type;
     }
 
-    public String getOwner() {
+    public UserInfo getOwner() {
         return owner;
     }
 
-    public void setOwner(String owner) {
+    public void setOwner(UserInfo owner) {
         this.owner = owner;
     }
 
