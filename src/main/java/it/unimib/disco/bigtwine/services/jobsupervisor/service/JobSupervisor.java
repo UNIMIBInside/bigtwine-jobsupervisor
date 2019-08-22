@@ -166,11 +166,11 @@ public class JobSupervisor {
         return this.stopAnalysisJob(analysisId, true);
     }
 
-    private void notifyAnalysisStatusChange(String analysisId, AnalysisStatusEnum newStatus, boolean isUserInitiated, String failMessage) {
+    private void notifyAnalysisStatusChange(String analysisId, AnalysisStatusEnum newStatus, String user, String failMessage) {
         AnalysisStatusChangedEvent event = new AnalysisStatusChangedEvent();
         event.setAnalysisId(analysisId);
         event.setStatus(newStatus);
-        event.setUserInitiated(isUserInitiated);
+        event.setUser(user);
         event.setMessage(failMessage);
 
         Message<AnalysisStatusChangedEvent> message = MessageBuilder
@@ -197,7 +197,7 @@ public class JobSupervisor {
     @StreamListener(AnalysisStatusChangeRequestConsumerChannel.CHANNEL)
     public void newAnalysisStatusChangeRequest(AnalysisStatusChangeRequestedEvent event) {
         String analysisId = event.getAnalysisId();
-        boolean isUserRequested = event.isUserRequested();
+        String user = event.getUser();
         AnalysisStatusEnum desiredStatus = event.getDesiredStatus();
         AnalysisStatusEnum newStatus;
         String failMessage = null;
@@ -231,11 +231,11 @@ public class JobSupervisor {
                 e.printStackTrace();
             }
         }else {
-            log.debug("Invalid change status request received {} for analysis: {} (user requested: {})", analysisId, event.getDesiredStatus(), isUserRequested);
+            log.debug("Invalid change status request received {} for analysis: {} (user requested: {})", analysisId, event.getDesiredStatus(), user);
             return;
         }
 
-        this.notifyAnalysisStatusChange(analysisId, newStatus, isUserRequested, failMessage);
+        this.notifyAnalysisStatusChange(analysisId, newStatus, user, failMessage);
     }
 
     @StreamListener(JobHeartbeatConsumerChannel.CHANNEL)
@@ -261,7 +261,7 @@ public class JobSupervisor {
 
             if (event.isLast()) {
                 stopJob(job, true);
-                this.notifyAnalysisStatusChange(job.getAnalysis().getId(), AnalysisStatusEnum.COMPLETED, false, null);
+                this.notifyAnalysisStatusChange(job.getAnalysis().getId(), AnalysisStatusEnum.COMPLETED, null, null);
             }
 
         } catch (JobService.NoSuchJobException e) {
