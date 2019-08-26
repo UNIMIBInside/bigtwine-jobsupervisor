@@ -10,6 +10,7 @@ import it.unimib.disco.bigtwine.services.jobsupervisor.domain.OAuthCredentials;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.UserInfo;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobExecutableBuilder;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.TwitterNeelUtil;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -116,6 +117,23 @@ public class FlinkTwitterNeelJobExecutableBuilderHelper implements JobExecutable
             "--analysis-id", analysis.getId()
         ));
 
+        if (analysis.getUserSettings() != null) {
+            Object nerRecognizer = analysis.getUserSettings().get("ner-recognizer");
+            if (nerRecognizer instanceof String && StringUtils.isNotBlank((String)nerRecognizer)) {
+                Collections.addAll(args, "--ner-recognizer", nerRecognizer.toString());
+            }
+
+            Object nelLinker = analysis.getUserSettings().get("nel-linker");
+            if (nelLinker instanceof String && StringUtils.isNotBlank((String)nelLinker)) {
+                Collections.addAll(args, "--nel-linker", nelLinker.toString());
+            }
+
+            Object geoDecoder = analysis.getUserSettings().get("geo-decoder");
+            if (geoDecoder instanceof String && StringUtils.isNotBlank((String)geoDecoder)) {
+                Collections.addAll(args, "--geo-decoder", geoDecoder.toString());
+            }
+        }
+
         if (analysis.isStreamAnalysis()) {
             OAuthCredentials credentials = getTwitterCredentials(job);
             String streamLang = this.applicationProperties.getTwitterNeel().getStream().getDefaultLang();
@@ -128,10 +146,29 @@ public class FlinkTwitterNeelJobExecutableBuilderHelper implements JobExecutable
                 "--twitter-token-secret", credentials.getAccessTokenSecret(),
                 "--twitter-consumer-key", credentials.getConsumerKey(),
                 "--twitter-consumer-secret", credentials.getConsumerSecret(),
+                "--heartbeat-interval", streamHeartbeat);
+
+            if (analysis.getUserSettings() != null) {
+                Object streamLangSet = analysis.getUserSettings().get("stream-lang");
+                if (streamLangSet instanceof String && StringUtils.isNotBlank((String)streamLangSet)) {
+                    streamLang = (String)streamLangSet;
+                }
+
+                Object streamSamplingSet = analysis.getUserSettings().get("stream-sampling");
+                if (streamSamplingSet instanceof Integer) {
+                    streamSampling = String.valueOf(streamSamplingSet);
+                }
+
+                Object streamSkipRetweetsSet = analysis.getUserSettings().get("stream-skip-retweets");
+                if (streamSkipRetweetsSet instanceof Boolean) {
+                    streamSkipRetweets = String.valueOf(streamSkipRetweetsSet);
+                }
+            }
+
+            Collections.addAll(args,
                 "--twitter-stream-lang", streamLang,
                 "--twitter-stream-sampling", streamSampling,
-                "--twitter-skip-retweets", streamSkipRetweets,
-                "--heartbeat-interval", streamHeartbeat);
+                "--twitter-skip-retweets", streamSkipRetweets);
         }
 
         if (analysis.isQueryInputType()) {

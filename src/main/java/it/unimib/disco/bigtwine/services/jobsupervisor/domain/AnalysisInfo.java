@@ -10,6 +10,7 @@ public class AnalysisInfo implements Serializable {
     private String type;
     private UserInfo owner;
     private Map<String, Object> input;
+    private Map<String, Object> userSettings;
 
     public AnalysisInfo() {
     }
@@ -44,6 +45,14 @@ public class AnalysisInfo implements Serializable {
 
     public void setInput(Map<String, Object> input) {
         this.input = input;
+    }
+
+    public Map<String, Object> getUserSettings() {
+        return userSettings;
+    }
+
+    public void setUserSettings(Map<String, Object> userSettings) {
+        this.userSettings = userSettings;
     }
 
     public String getInputType() {
