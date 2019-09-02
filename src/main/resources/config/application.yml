@@ -100,8 +100,10 @@ spring:
                     content-type: application/json
                 analysisStatusChangeRequestsChannel:
                     destination: analysis-status-change-requests
-                JobHeartbeatsChannel:
+                jobHeartbeatsChannel:
                     destination: job-heartbeats
+                jobControlEventsChannel:
+                    destination: job-control-events
 
 server:
     servlet:

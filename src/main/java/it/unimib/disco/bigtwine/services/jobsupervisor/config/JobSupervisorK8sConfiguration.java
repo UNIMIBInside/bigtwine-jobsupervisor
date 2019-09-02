@@ -8,6 +8,7 @@ import it.unimib.disco.bigtwine.services.jobsupervisor.executor.kubernetes.Kuber
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.kubernetes.KubernetesJobExecutor;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.kubernetes.KubernetesObjectLoader;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.kubernetes.YamlTemplateKubernetesObjectLoader;
+import it.unimib.disco.bigtwine.services.jobsupervisor.executor.twitter.neel.FlinkTwitterNeelExportJobExecutableBuilderHelper;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.twitter.neel.FlinkTwitterNeelJobExecutableBuilderHelper;
 import org.apache.commons.io.IOUtils;
 import org.springframework.context.annotation.Bean;
@@ -23,17 +24,32 @@ import java.nio.file.Paths;
 @Configuration
 @Profile(JHipsterConstants.SPRING_PROFILE_K8S)
 public class JobSupervisorK8sConfiguration {
-    @Bean("TWITTER_NEEL")
-    public JobExecutableBuilder getFlinkTwitterNeelKubernetesJobExecutableBuilder(
-        FlinkTwitterNeelJobExecutableBuilderHelper helper,
-        ApplicationProperties props) throws IOException, URISyntaxException {
+
+    private KubernetesObjectLoader createFlinkTwitterNeelKubernetesObjectLoader(ApplicationProperties props) throws IOException, URISyntaxException {
         String templateName = props.getTwitterNeel().getStream().getFlinkJob().getKubernetesTemplate();
         URI templateUri = IOUtils
             .resourceToURL(templateName, JobSupervisorK8sConfiguration.class.getClassLoader())
             .toURI();
 
         File template = Paths.get(templateUri).toFile();
-        KubernetesObjectLoader kubernetesObjectLoader = new YamlTemplateKubernetesObjectLoader(template);
+
+        return new YamlTemplateKubernetesObjectLoader(template);
+    }
+
+    @Bean("TWITTER_NEEL")
+    public JobExecutableBuilder getFlinkTwitterNeelKubernetesJobExecutableBuilder(
+        FlinkTwitterNeelJobExecutableBuilderHelper helper,
+        ApplicationProperties props) throws IOException, URISyntaxException {
+        KubernetesObjectLoader kubernetesObjectLoader = createFlinkTwitterNeelKubernetesObjectLoader(props);
+
+        return new KubernetesJobExecutableBuilder(kubernetesObjectLoader, helper);
+    }
+
+    @Bean("TWITTER_NEEL__EXPORT")
+    public JobExecutableBuilder getFlinkTwitterNeelExportKubernetesJobExecutableBuilder(
+        FlinkTwitterNeelExportJobExecutableBuilderHelper helper,
+        ApplicationProperties props) throws IOException, URISyntaxException {
+        KubernetesObjectLoader kubernetesObjectLoader = createFlinkTwitterNeelKubernetesObjectLoader(props);
 
         return new KubernetesJobExecutableBuilder(kubernetesObjectLoader, helper);
     }

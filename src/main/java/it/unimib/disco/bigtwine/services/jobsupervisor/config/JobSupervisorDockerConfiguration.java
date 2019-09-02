@@ -11,6 +11,7 @@ import it.unimib.disco.bigtwine.services.jobsupervisor.executor.docker.DockerJob
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.docker.DockerJobExecutor;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.shell.ShellJobExecutableBuilder;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.shell.ShellJobExecutor;
+import it.unimib.disco.bigtwine.services.jobsupervisor.executor.twitter.neel.FlinkTwitterNeelExportJobExecutableBuilderHelper;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.twitter.neel.FlinkTwitterNeelJobExecutableBuilderHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -44,6 +45,13 @@ public class JobSupervisorDockerConfiguration {
     @Bean("TWITTER_NEEL")
     public JobExecutableBuilder getFlinkTwitterNeelDockerJobExecutableBuilder(
         FlinkTwitterNeelJobExecutableBuilderHelper helper,
+        ApplicationProperties applicationProperties) {
+        return new DockerJobExecutableBuilder(helper, applicationProperties.getDocker());
+    }
+
+    @Bean("TWITTER_NEEL__EXPORT")
+    public JobExecutableBuilder getFlinkTwitterNeelExportDockerJobExecutableBuilder(
+        FlinkTwitterNeelExportJobExecutableBuilderHelper helper,
         ApplicationProperties applicationProperties) {
         return new DockerJobExecutableBuilder(helper, applicationProperties.getDocker());
     }

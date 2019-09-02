@@ -3,6 +3,7 @@ package it.unimib.disco.bigtwine.services.jobsupervisor.service;
 import it.unimib.disco.bigtwine.services.jobsupervisor.client.AnalysisServiceClient;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.AnalysisInfo;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.Job;
+import it.unimib.disco.bigtwine.services.jobsupervisor.domain.enumeration.JobType;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobProcess;
 import it.unimib.disco.bigtwine.services.jobsupervisor.repository.JobRepository;
 import org.slf4j.Logger;
@@ -29,8 +30,12 @@ public class JobService {
     }
 
     @Transactional
-    public Job createRunningJobForAnalysis(String analysisId) throws JobAlreadyRunningExecption {
+    public Job createRunningJobForAnalysis(String analysisId, JobType jobType) throws JobAlreadyRunningExecption {
         AnalysisInfo analysis;
+
+        if (jobType == null) {
+            jobType = JobType.DEFAULT;
+        }
 
         try {
             analysis = this.analysisServiceClient.findAnalysisById(analysisId);
@@ -39,7 +44,7 @@ public class JobService {
             throw new NoSuchAnalysisException();
         }
 
-        Optional<Job> runningJob = this.findRunningJobForAnalysis(analysisId);
+        Optional<Job> runningJob = this.findRunningJobForAnalysis(analysisId, jobType);
         if (runningJob.isPresent()) {
             throw new JobAlreadyRunningExecption(runningJob.get());
         }
@@ -47,11 +52,17 @@ public class JobService {
         Instant now = Instant.now();
         Job job = new Job();
         job.setAnalysis(analysis);
+        job.setJobType(jobType);
         job.setRunning(true);
         job.setStartDate(now);
         job.setLastUpdateDate(now);
 
         return this.jobRepository.insert(job);
+    }
+
+    @Transactional
+    public Job createRunningJobForAnalysis(String analysisId) throws JobAlreadyRunningExecption {
+        return this.createRunningJobForAnalysis(analysisId, JobType.DEFAULT);
     }
 
     @Transactional
@@ -79,17 +90,21 @@ public class JobService {
         return this.jobRepository.save(job);
     }
 
-    public Optional<Job> findRunningJobForAnalysis(String analysisId) {
+    public Optional<Job> findRunningJobForAnalysis(String analysisId, JobType jobType) {
         return this.jobRepository
-            .findRunningJobForAnalysis(analysisId)
+            .findRunningJobForAnalysisAndJobType(analysisId, jobType)
             .max(Comparator.comparing(Job::getLastUpdateDate));
+    }
+
+    public Optional<Job> findRunningJobForAnalysis(String analysisId) {
+        return this.findRunningJobForAnalysis(analysisId, JobType.DEFAULT);
     }
 
     public Optional<Job> findById(String jobId) {
         return this.jobRepository.findById(jobId);
     }
 
-    public Job saveJobHeartbeat(String jobId, Instant timestamp, double progress, boolean isLast) {
+    public Job saveJobHeartbeat(String jobId, Instant timestamp, double progress, boolean isLast, boolean isFailed, String message) {
         Job job = this.jobRepository.findById(jobId)
             .orElseThrow(NoSuchJobException::new);
 
@@ -104,10 +119,15 @@ public class JobService {
             job.setProgress(progress);
         }
 
-        if (isLast) {
+        if (isLast || isFailed) {
             job.setRunning(false);
             job.setEndDate(timestamp);
-            job.setEndReason("Job completed");
+
+            if (isFailed) {
+                job.setEndReason("Job failed with error: " + message);
+            } else {
+                job.setEndReason("Job completed");
+            }
         }
 
         return this.jobRepository.save(job);

@@ -1,18 +1,12 @@
 package it.unimib.disco.bigtwine.services.jobsupervisor.service;
 
-import it.unimib.disco.bigtwine.commons.messaging.AnalysisProgressUpdateEvent;
-import it.unimib.disco.bigtwine.commons.messaging.AnalysisStatusChangedEvent;
-import it.unimib.disco.bigtwine.commons.messaging.JobHeartbeatEvent;
+import it.unimib.disco.bigtwine.commons.messaging.*;
 import it.unimib.disco.bigtwine.commons.models.AnalysisStatusEnum;
 import it.unimib.disco.bigtwine.commons.models.JobTypeEnum;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.Job;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.enumeration.JobType;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.*;
-import it.unimib.disco.bigtwine.services.jobsupervisor.messaging.AnalysisProgressUpdatesProducerChannel;
-import it.unimib.disco.bigtwine.services.jobsupervisor.messaging.AnalysisStatusChangeRequestConsumerChannel;
-import it.unimib.disco.bigtwine.services.jobsupervisor.messaging.AnalysisStatusChangedProducerChannel;
-import it.unimib.disco.bigtwine.commons.messaging.AnalysisStatusChangeRequestedEvent;
-import it.unimib.disco.bigtwine.services.jobsupervisor.messaging.JobHeartbeatConsumerChannel;
+import it.unimib.disco.bigtwine.services.jobsupervisor.messaging.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.stream.annotation.StreamListener;
@@ -47,16 +41,19 @@ public class JobSupervisor {
         this.jobExecutableBuilderLocator = jobExecutableBuilderLocator;
     }
 
-    @SuppressWarnings("UnusedReturnValue")
-    private Job startAnalysisJob(String analysisId) throws JobExecutionException {
+    private Job startAnalysisJob(JobType jobType, String analysisId) throws JobExecutionException {
+        if (jobType == null || analysisId == null) {
+            throw new IllegalArgumentException("jobType and analysisId must not be null");
+        }
+
         Job newJob;
         try {
-            newJob = this.jobService.createRunningJobForAnalysis(analysisId);
+            newJob = this.jobService.createRunningJobForAnalysis(analysisId, jobType);
         } catch (JobService.NoSuchAnalysisException e) {
             throw new JobExecutionException(String.format("Analysis with id %s not found", analysisId));
         } catch (JobService.JobAlreadyRunningExecption e){
-            throw new JobExecutionException(String.format("A job for analysis %s already running (job id %s)",
-                analysisId, e.getRunningJob().getId()));
+            throw new JobExecutionException(String.format("A job with type %s for analysis %s is running already (job id %s)",
+                jobType, analysisId, e.getRunningJob().getId()));
         }
 
         JobExecutableBuilder builder;
@@ -75,9 +72,9 @@ public class JobSupervisor {
             executable = builder.build();
         } catch (JobExecutableBuilder.BuildException e) {
             e.printStackTrace();
-            this.jobService.endJob(newJob.getId(), "Job executable cannot be created");
-            throw new JobExecutionException(String.format("A job executable for analysis %s cannot be created",
-                analysisId));
+            this.jobService.endJob(newJob.getId(), "Job executable cannot be created: " + e.getLocalizedMessage());
+            throw new JobExecutionException(String.format("A job executable for analysis %s cannot be created: %s",
+                analysisId, e.getLocalizedMessage()));
         }
 
         if (!this.jobExecutor.test(executable)) {
@@ -104,12 +101,31 @@ public class JobSupervisor {
         return this.jobService.updateJobProcess(newJob.getId(), process);
     }
 
-    private Job stopAnalysisJob(String analysisId, boolean endJobIfStopFail) throws JobExecutionException {
+    @SuppressWarnings("UnusedReturnValue")
+    private Job startAnalysisJob(String analysisId) throws JobExecutionException {
+        return this.startAnalysisJob(JobType.DEFAULT, analysisId);
+    }
+
+    private Job stopAnalysisJob(JobType jobType, String analysisId, boolean endJobIfStopFail) throws JobExecutionException {
         Job job = this.jobService
-            .findRunningJobForAnalysis(analysisId)
-            .orElseThrow(() -> new JobExecutionException(String.format("Running job for analysis %s not found", analysisId)));
+            .findRunningJobForAnalysis(analysisId, jobType)
+            .orElseThrow(() -> new JobExecutionException(String.format("Running job with type %s for analysis %s not found", jobType, analysisId)));
 
         return stopJob(job, endJobIfStopFail);
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    private Job stopAnalysisJob(String analysisId, boolean endJobIfStopFail) throws JobExecutionException {
+        return this.stopAnalysisJob(JobType.DEFAULT, analysisId, endJobIfStopFail);
+    }
+
+    private Job cancelAnalysisJob(JobType jobType, String analysisId) throws JobExecutionException {
+        return this.stopAnalysisJob(jobType, analysisId, true);
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    private Job cancelAnalysisJob(String analysisId) throws JobExecutionException {
+        return this.cancelAnalysisJob(JobType.DEFAULT, analysisId);
     }
 
     private Job stopJob(Job job, boolean endJobIfStopFail) throws JobExecutionException {
@@ -161,11 +177,6 @@ public class JobSupervisor {
         return stopJob(job, endJobIfStopFail);
     }
 
-    @SuppressWarnings("UnusedReturnValue")
-    private Job cancelAnalysisJob(String analysisId) throws JobExecutionException {
-        return this.stopAnalysisJob(analysisId, true);
-    }
-
     private void notifyAnalysisStatusChange(String analysisId, AnalysisStatusEnum newStatus, Object user, String failMessage) {
         AnalysisStatusChangedEvent event = new AnalysisStatusChangedEvent();
         event.setAnalysisId(analysisId);
@@ -180,18 +191,28 @@ public class JobSupervisor {
         this.statusChangedChannel.send(message);
     }
 
-    private void notifyAnalysisProgressUpdate(String analysisId, JobType jobType, double progress, Instant timestamp) {
+    private void notifyAnalysisProgressUpdate(
+        String analysisId,
+        JobType jobType,
+        double progress,
+        boolean isCompleted,
+        boolean isFailed,
+        Instant timestamp,
+        String message) {
         AnalysisProgressUpdateEvent event = new AnalysisProgressUpdateEvent();
         event.setAnalysisId(analysisId);
         event.setJobType(JobTypeEnum.valueOf(jobType.name()));
         event.setProgress(progress);
+        event.setFailed(isFailed);
+        event.setCompleted(isCompleted);
+        event.setMessage(message);
         event.setTimestamp(timestamp);
 
-        Message<AnalysisProgressUpdateEvent> message = MessageBuilder
+        Message<AnalysisProgressUpdateEvent> msg = MessageBuilder
             .withPayload(event)
             .build();
 
-        this.progressUpdatesChannel.send(message);
+        this.progressUpdatesChannel.send(msg);
     }
 
     @StreamListener(AnalysisStatusChangeRequestConsumerChannel.CHANNEL)
@@ -238,6 +259,30 @@ public class JobSupervisor {
         this.notifyAnalysisStatusChange(analysisId, newStatus, user, failMessage);
     }
 
+    @StreamListener(JobControlEventsConsumerChannel.CHANNEL)
+    public void jobControlEventReceived(JobControlEvent event) {
+        log.info("Job control event received: {}, {}, {}, {}",
+            event.getJobId(), event.getJobType(), event.getAction(), event.getAnalysisId());
+
+        try {
+            switch (event.getAction()) {
+                case START:
+                    startAnalysisJob(JobType.valueOf(event.getJobType().name()), event.getAnalysisId());
+                    break;
+                case STOP:
+                    stopJob(event.getJobId(), false);
+                    break;
+                case CANCEL:
+                    stopJob(event.getJobId(), true);
+                    break;
+                default:
+                    log.warn("Unsupported control event received {}", event.getAction());
+            }
+        } catch (JobExecutionException | IllegalArgumentException e) {
+            log.error("Cannot execute job control", e);
+        }
+    }
+
     @StreamListener(JobHeartbeatConsumerChannel.CHANNEL)
     public void jobHeartbeatReceived(JobHeartbeatEvent event) {
         if (event.getJobId() == null || event.getTimestamp() == null) {
@@ -249,25 +294,40 @@ public class JobSupervisor {
                 event.getJobId(),
                 event.getTimestamp(),
                 event.getProgress(),
-                event.isLast());
+                event.isLast(),
+                event.isFailed(),
+                event.getMessage());
 
-            if (job.getProgress() >= 0) {
+            if (job.getProgress() >= 0 || event.isLast() || event.isFailed()) {
                 this.notifyAnalysisProgressUpdate(
                     job.getAnalysis().getId(),
                     job.getJobType(),
                     job.getProgress(),
-                    event.getTimestamp());
+                    event.isLast(),
+                    event.isFailed(),
+                    event.getTimestamp(),
+                    event.getMessage());
             }
 
-            if (event.isLast()) {
-                stopJob(job, true);
-                this.notifyAnalysisStatusChange(job.getAnalysis().getId(), AnalysisStatusEnum.COMPLETED, null, null);
+            if (job.getJobType() == JobType.PROCESSING && (event.isLast() || event.isFailed())) {
+                AnalysisStatusEnum nextStatus;
+                String failMessage = null;
+                if (event.isLast()) {
+                    stopJob(job, true);
+                    nextStatus = AnalysisStatusEnum.COMPLETED;
+                } else {
+                    nextStatus = AnalysisStatusEnum.FAILED;
+                    failMessage = event.getMessage();
+                }
+
+
+                this.notifyAnalysisStatusChange(job.getAnalysis().getId(), nextStatus, null, failMessage);
             }
 
         } catch (JobService.NoSuchJobException e) {
-            log.debug("Job not found", e);
+            log.error("Job not found", e);
         } catch (JobExecutionException e) {
-            log.debug("Job cannot be stopped", e);
+            log.error("Job cannot be stopped", e);
         }
     }
 

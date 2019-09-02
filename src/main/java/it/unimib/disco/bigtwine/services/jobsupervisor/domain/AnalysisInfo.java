@@ -11,6 +11,7 @@ public class AnalysisInfo implements Serializable {
     private UserInfo owner;
     private Map<String, Object> input;
     private Map<String, Object> userSettings;
+    private Map<String, Object> export;
 
     public AnalysisInfo() {
     }
@@ -53,6 +54,14 @@ public class AnalysisInfo implements Serializable {
 
     public void setUserSettings(Map<String, Object> userSettings) {
         this.userSettings = userSettings;
+    }
+
+    public Map<String, Object> getExport() {
+        return export;
+    }
+
+    public void setExport(Map<String, Object> export) {
+        this.export = export;
     }
 
     public String getInputType() {
@@ -103,5 +112,9 @@ public class AnalysisInfo implements Serializable {
         public static final String QUERY = "query";
         public static final String BOUNDING_BOXES = "bounding-boxes";
         public static final String DATASET = "dataset";
+    }
+
+    public static class ExportKeys {
+        public static final String DOCUMENT_ID = "documentId";
     }
 }

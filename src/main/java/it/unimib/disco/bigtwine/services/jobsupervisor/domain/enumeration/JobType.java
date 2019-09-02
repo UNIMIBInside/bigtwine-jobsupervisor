@@ -1,7 +1,7 @@
 package it.unimib.disco.bigtwine.services.jobsupervisor.domain.enumeration;
 
 public enum JobType {
-    PROCESSING;
+    PROCESSING, EXPORT;
 
     public static JobType DEFAULT = JobType.PROCESSING;
 }

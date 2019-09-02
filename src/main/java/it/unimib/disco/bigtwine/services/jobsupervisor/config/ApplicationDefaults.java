@@ -26,6 +26,17 @@ public interface ApplicationDefaults {
                 String kubernetesTemplate = "";
             }
         }
+
+        interface Export {
+            int heartbeat = 2;
+
+            interface FlinkJob {
+                String javaBin = "java";
+                String jarName = "StreamProcessor.jar";
+                String jarClass = "it.unimib.disco.bigtwine.streamprocessor.ExportResultsJob";
+                String kubernetesTemplate = "";
+            }
+        }
     }
 
     interface Kubernetes {

@@ -3,10 +3,7 @@ package it.unimib.disco.bigtwine.services.jobsupervisor.config;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import it.unimib.disco.bigtwine.services.jobsupervisor.messaging.AnalysisProgressUpdatesProducerChannel;
-import it.unimib.disco.bigtwine.services.jobsupervisor.messaging.AnalysisStatusChangeRequestConsumerChannel;
-import it.unimib.disco.bigtwine.services.jobsupervisor.messaging.AnalysisStatusChangedProducerChannel;
-import it.unimib.disco.bigtwine.services.jobsupervisor.messaging.JobHeartbeatConsumerChannel;
+import it.unimib.disco.bigtwine.services.jobsupervisor.messaging.*;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.messaging.Source;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +26,7 @@ import org.springframework.messaging.support.GenericMessage;
     AnalysisStatusChangeRequestConsumerChannel.class,
     AnalysisStatusChangedProducerChannel.class,
     AnalysisProgressUpdatesProducerChannel.class,
+    JobControlEventsConsumerChannel.class,
     JobHeartbeatConsumerChannel.class})
 public class MessagingConfiguration {
 

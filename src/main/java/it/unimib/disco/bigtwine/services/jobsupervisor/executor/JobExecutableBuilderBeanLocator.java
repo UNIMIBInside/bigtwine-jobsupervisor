@@ -2,6 +2,7 @@ package it.unimib.disco.bigtwine.services.jobsupervisor.executor;
 
 import it.unimib.disco.bigtwine.services.jobsupervisor.context.ContextProvider;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.Job;
+import it.unimib.disco.bigtwine.services.jobsupervisor.domain.enumeration.JobType;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.BeanFactoryAnnotationUtils;
 
@@ -18,24 +19,27 @@ public class JobExecutableBuilderBeanLocator implements JobExecutableBuilderLoca
 
     @Override
     public JobExecutableBuilder<?> getJobExecutableBuilder(Job job) {
-        if (job == null || job.getAnalysis() == null ||  job.getAnalysis().getType() == null) {
+        if (job == null || job.getAnalysis() == null || job.getAnalysis().getType() == null) {
             return null;
         }
 
-        String analysisType = job.getAnalysis().getType();
+        JobType jobType = job.getJobType();
+        String beanQualifier = job
+            .getAnalysis()
+            .getType()
+            .toUpperCase()
+            .replace("-", "_")
+            .replace(" ", "_");
 
-        if (analysisType != null) {
-            analysisType = analysisType
-                .toUpperCase()
-                .replace("-", "_")
-                .replace(" ", "_");
+        if (jobType != null && jobType != JobType.DEFAULT) {
+            beanQualifier += "__" + jobType.name().toUpperCase();
         }
 
         try {
             return BeanFactoryAnnotationUtils.qualifiedBeanOfType(
                 this.contextProvider.getBeanFactory(),
                 JobExecutableBuilder.class,
-                analysisType);
+                beanQualifier);
         }catch(NoSuchBeanDefinitionException e) {
             throw new JobExecutableBuilderNotFoundException(e.getLocalizedMessage());
         }
