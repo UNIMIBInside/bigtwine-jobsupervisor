@@ -117,18 +117,18 @@ public class FlinkTwitterNeelJobExecutableBuilderHelper implements JobExecutable
             "--analysis-id", analysis.getId()
         ));
 
-        if (analysis.getUserSettings() != null) {
-            Object nerRecognizer = analysis.getUserSettings().get("ner-recognizer");
+        if (analysis.getSettings() != null) {
+            Object nerRecognizer = analysis.getSettings().get("ner-recognizer");
             if (nerRecognizer instanceof String && StringUtils.isNotBlank((String)nerRecognizer)) {
                 Collections.addAll(args, "--ner-recognizer", nerRecognizer.toString());
             }
 
-            Object nelLinker = analysis.getUserSettings().get("nel-linker");
+            Object nelLinker = analysis.getSettings().get("nel-linker");
             if (nelLinker instanceof String && StringUtils.isNotBlank((String)nelLinker)) {
                 Collections.addAll(args, "--nel-linker", nelLinker.toString());
             }
 
-            Object geoDecoder = analysis.getUserSettings().get("geo-decoder");
+            Object geoDecoder = analysis.getSettings().get("geo-decoder");
             if (geoDecoder instanceof String && StringUtils.isNotBlank((String)geoDecoder)) {
                 Collections.addAll(args, "--geo-decoder", geoDecoder.toString());
             }
@@ -148,18 +148,18 @@ public class FlinkTwitterNeelJobExecutableBuilderHelper implements JobExecutable
                 "--twitter-consumer-secret", credentials.getConsumerSecret(),
                 "--heartbeat-interval", streamHeartbeat);
 
-            if (analysis.getUserSettings() != null) {
-                Object streamLangSet = analysis.getUserSettings().get("stream-lang");
+            if (analysis.getSettings() != null) {
+                Object streamLangSet = analysis.getSettings().get("stream-lang");
                 if (streamLangSet instanceof String && StringUtils.isNotBlank((String)streamLangSet)) {
                     streamLang = (String)streamLangSet;
                 }
 
-                Object streamSamplingSet = analysis.getUserSettings().get("stream-sampling");
+                Object streamSamplingSet = analysis.getSettings().get("stream-sampling");
                 if (streamSamplingSet instanceof Integer) {
                     streamSampling = String.valueOf(streamSamplingSet);
                 }
 
-                Object streamSkipRetweetsSet = analysis.getUserSettings().get("stream-skip-retweets");
+                Object streamSkipRetweetsSet = analysis.getSettings().get("stream-skip-retweets");
                 if (streamSkipRetweetsSet instanceof Boolean) {
                     streamSkipRetweets = String.valueOf(streamSkipRetweetsSet);
                 }

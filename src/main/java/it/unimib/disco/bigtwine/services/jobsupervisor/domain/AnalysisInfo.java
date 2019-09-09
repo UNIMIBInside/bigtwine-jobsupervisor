@@ -10,7 +10,7 @@ public class AnalysisInfo implements Serializable {
     private String type;
     private UserInfo owner;
     private Map<String, Object> input;
-    private Map<String, Object> userSettings;
+    private Map<String, Object> settings;
     private Map<String, Object> export;
 
     public AnalysisInfo() {
@@ -48,12 +48,12 @@ public class AnalysisInfo implements Serializable {
         this.input = input;
     }
 
-    public Map<String, Object> getUserSettings() {
-        return userSettings;
+    public Map<String, Object> getSettings() {
+        return settings;
     }
 
-    public void setUserSettings(Map<String, Object> userSettings) {
-        this.userSettings = userSettings;
+    public void setSettings(Map<String, Object> settings) {
+        this.settings = settings;
     }
 
     public Map<String, Object> getExport() {
