@@ -45,7 +45,7 @@ public abstract class AbstractKubernetesJobExecutableBuilder extends AbstractJob
 
     protected String buildKubernetesObjectName() {
         AnalysisInfo analysis = this.getJob().getAnalysis();
-        return String.format("job-%s-%s-%s", this.getJob().getId(), analysis.getType(), analysis.getId());
+        return String.format("streamprocessor-%s-%s", this.getJob().getId(), analysis.getId());
     }
 
     protected Object buildKubernetesObject() throws BuildException {
@@ -55,10 +55,27 @@ public abstract class AbstractKubernetesJobExecutableBuilder extends AbstractJob
 
         Map<String, Object> vars = new HashMap<>();
         vars.put("metadata.name", jobName);
-        vars.put("spec.template.spec.containers[0].command", command);
-        vars.put("spec.template.spec.containers[0].args", args);
 
-        return this.kubernetesObjectLoader.getKubernetesObjectSpec(vars);
+        if (command != null) {
+            vars.put("spec.template.spec.containers[0].command", command);
+        }
+
+        if (args != null) {
+            vars.put("spec.template.spec.containers[0].args", args);
+        }
+
+        Object k8sObject;
+        try {
+            k8sObject = this.kubernetesObjectLoader.getKubernetesObjectSpec(vars);
+        } catch (Exception e) {
+            throw new BuildException("Cannot build k8s object spec: " + e.getLocalizedMessage());
+        }
+
+        if (k8sObject == null) {
+            throw new BuildException("Cannot build k8s object spec");
+        }
+
+        return k8sObject;
     }
 
     protected abstract List<String> buildExecutableCommand() throws BuildException;

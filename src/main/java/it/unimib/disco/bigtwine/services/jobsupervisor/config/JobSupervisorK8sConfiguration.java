@@ -11,6 +11,7 @@ import it.unimib.disco.bigtwine.services.jobsupervisor.executor.kubernetes.YamlT
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.twitter.neel.FlinkTwitterNeelExportJobExecutableBuilderHelper;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.twitter.neel.FlinkTwitterNeelJobExecutableBuilderHelper;
 import org.apache.commons.io.IOUtils;
+import org.springframework.boot.context.properties.source.InvalidConfigurationPropertyValueException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -37,6 +38,13 @@ public class JobSupervisorK8sConfiguration {
         }
 
         File template = Paths.get(templateUri).toFile();
+        if (!(template.exists() && template.isFile())) {
+            throw new InvalidConfigurationPropertyValueException(
+                "application.twitterNeel.stream.flinkJob.kubernetesTemplate",
+                templateName,
+                "The given template is not accessible or it isn't a file: " + templateUri.toString()
+            );
+        }
 
         return new YamlTemplateKubernetesObjectLoader(template);
     }

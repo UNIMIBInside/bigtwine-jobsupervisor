@@ -53,7 +53,7 @@ public class YamlTemplateKubernetesObjectLoader implements KubernetesObjectLoade
         } catch (IOException e) {
             log.error("Cannot load kubernetes template located at: " + this.getTemplatePath().getAbsolutePath());
             return null;
-        }catch(ReflectiveOperationException e) {
+        } catch(ReflectiveOperationException e) {
             log.error("Cannot substitute variables", e);
             return null;
         }

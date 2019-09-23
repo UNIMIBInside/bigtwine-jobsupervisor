@@ -8,6 +8,7 @@ import it.unimib.disco.bigtwine.commons.models.AnalysisStatusEnum;
 import it.unimib.disco.bigtwine.services.jobsupervisor.JobsupervisorApp;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.AnalysisInfo;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.Job;
+import it.unimib.disco.bigtwine.services.jobsupervisor.domain.UserInfo;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.*;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.shell.ShellJobProcess;
 import it.unimib.disco.bigtwine.services.jobsupervisor.messaging.AnalysisStatusChangeRequestConsumerChannel;
@@ -31,6 +32,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -134,7 +138,7 @@ public class JobSupervisorIntTest {
 
         assertEquals("testanalysis-1", resEvent.getAnalysisId());
         assertEquals(AnalysisStatusEnum.STOPPED, resEvent.getStatus());
-        assertFalse(resEvent.isUserInitiated());
+        assertNull(resEvent.getUser());
     }
 
     @Test
@@ -171,7 +175,7 @@ public class JobSupervisorIntTest {
     private void sendChangeStatusRequest(String analysisId, AnalysisStatusEnum desiredStatus, boolean userRequested) {
         AnalysisStatusChangeRequestedEvent event = new AnalysisStatusChangeRequestedEvent();
         event.setAnalysisId(analysisId);
-        event.setUserRequested(userRequested);
+        event.setUser(null);
         event.setDesiredStatus(desiredStatus);
 
         this.statusChangeRequestConsumerChannel
@@ -191,7 +195,7 @@ public class JobSupervisorIntTest {
         event.setTimestamp(ts);
 
         heartbeatConsumerChannel
-            .JobHeartbeatsChannel()
+            .jobHeartbeatsChannel()
             .send(MessageBuilder.withPayload(event).build());
 
         Job updatedJob = this.jobRepository.findById(job.getId()).orElse(null);
@@ -205,12 +209,18 @@ public class JobSupervisorIntTest {
     }
 
     private AnalysisInfo createAnalysis() {
+        Map<String, Object> input = new HashMap<>();
+        input.put(AnalysisInfo.InputKeys.TYPE, AnalysisInfo.InputType.QUERY);
+        input.put(AnalysisInfo.InputKeys.TOKENS, Collections.singletonList("testquery"));
+        input.put(AnalysisInfo.InputKeys.JOIN_OPERATOR, "all");
+        UserInfo owner = new UserInfo();
+        owner.setUid("testuser-1");
+        owner.setUsername("testuser-1");
         AnalysisInfo analysis = new AnalysisInfo();
         analysis.setId("testanalysis-1");
         analysis.setType("TWITTER_NEEL");
-        analysis.setInputType("QUERY");
-        analysis.setQuery("testquery");
-        analysis.setOwner("testuser-1");
+        analysis.setInput(input);
+        analysis.setOwner(owner);
 
         return analysis;
 

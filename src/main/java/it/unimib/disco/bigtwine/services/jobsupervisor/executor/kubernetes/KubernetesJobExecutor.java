@@ -3,7 +3,6 @@ package it.unimib.disco.bigtwine.services.jobsupervisor.executor.kubernetes;
 import com.google.gson.JsonSyntaxException;
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
-import io.kubernetes.client.apis.BatchApi;
 import io.kubernetes.client.apis.BatchV1Api;
 import io.kubernetes.client.models.V1DeleteOptions;
 import io.kubernetes.client.models.V1Job;

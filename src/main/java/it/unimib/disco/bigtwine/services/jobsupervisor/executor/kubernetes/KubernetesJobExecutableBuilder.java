@@ -17,7 +17,7 @@ public class KubernetesJobExecutableBuilder extends AbstractKubernetesJobExecuta
 
     @Override
     protected List<String> buildExecutableCommand() throws BuildException {
-        return this.helper.buildExecutableCommand(this.getJob());
+        return null;
     }
 
     @Override

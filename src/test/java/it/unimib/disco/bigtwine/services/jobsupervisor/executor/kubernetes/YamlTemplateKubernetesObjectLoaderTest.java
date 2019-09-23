@@ -18,10 +18,10 @@ public class YamlTemplateKubernetesObjectLoaderTest {
     public void testLoadTemplate() throws Exception {
         KubernetesObjectLoader k8sObjLoader = new YamlTemplateKubernetesObjectLoader(getTemplateFile());
 
-        List<Object> command = new ArrayList<>();
+        List<String> command = new ArrayList<>();
         Collections.addAll(command, "/bin/cmd");
-        List<Object> args = new ArrayList<>();
-        Collections.addAll(args, "arg1", 100);
+        List<String> args = new ArrayList<>();
+        Collections.addAll(args, "arg1", "100");
 
         Map<String, Object> vars = new HashMap<>();
         vars.put("spec.template.spec.containers[0].command", command);

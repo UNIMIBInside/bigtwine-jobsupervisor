@@ -6,6 +6,7 @@ import it.unimib.disco.bigtwine.services.jobsupervisor.config.ApplicationPropert
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.AnalysisInfo;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.Job;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.OAuthCredentials;
+import it.unimib.disco.bigtwine.services.jobsupervisor.domain.UserInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -80,12 +81,15 @@ public class FlinkTwitterNeelJobExecutableBuilderHelperTest {
         input.put(AnalysisInfo.InputKeys.TYPE, "query");
         input.put(AnalysisInfo.InputKeys.TOKENS, Arrays.asList("test", "query"));
         input.put(AnalysisInfo.InputKeys.JOIN_OPERATOR, "all");
+        UserInfo owner = new UserInfo();
+        owner.setUid("testuser-1");
+        owner.setUsername("testuser-1");
 
         AnalysisInfo analysis = new AnalysisInfo();
         analysis.setId("testanalysis-1");
         analysis.setType("TWITTER_NEEL");
         analysis.setInput(input);
-        analysis.setOwner("testuser-1");
+        analysis.setOwner(owner);
 
         Job job = new Job();
         job.setId("testjob-1");
