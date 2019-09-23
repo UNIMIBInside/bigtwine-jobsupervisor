@@ -27,9 +27,14 @@ public class JobSupervisorK8sConfiguration {
 
     private KubernetesObjectLoader createFlinkTwitterNeelKubernetesObjectLoader(ApplicationProperties props) throws IOException, URISyntaxException {
         String templateName = props.getTwitterNeel().getStream().getFlinkJob().getKubernetesTemplate();
-        URI templateUri = IOUtils
-            .resourceToURL(templateName, JobSupervisorK8sConfiguration.class.getClassLoader())
-            .toURI();
+        URI templateUri;
+        if (Paths.get(templateName).isAbsolute()) {
+            templateUri = new URI(templateName);
+        } else {
+            templateUri = IOUtils
+                .resourceToURL(templateName, JobSupervisorK8sConfiguration.class.getClassLoader())
+                .toURI();
+        }
 
         File template = Paths.get(templateUri).toFile();
 
