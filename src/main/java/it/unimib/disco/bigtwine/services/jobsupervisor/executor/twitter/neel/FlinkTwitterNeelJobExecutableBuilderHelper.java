@@ -40,7 +40,7 @@ public class FlinkTwitterNeelJobExecutableBuilderHelper implements JobExecutable
         try {
             return this.socialsServiceClient.findTwitterOAuthCredentials(analysisOwner.getUid());
         }catch (Exception e) {
-            throw new JobExecutableBuilder.BuildException("Cannot retrieve twitter credentials for analysis owner: " + analysisOwner);
+            throw new JobExecutableBuilder.BuildException("Cannot retrieve twitter credentials for analysis owner: " + analysisOwner.getUid());
         }
     }
 

@@ -86,8 +86,8 @@ public class KubernetesJobExecutor implements JobExecutor<KubernetesJobProcess, 
         try {
             V1Job job = this.getBatchApi().readNamespacedJob(process.getName(), this.getNamespace(), null, false, false);
             return job.getStatus().getCompletionTime() == null;
-        } catch (ApiException e) {
-            if (e.getCode() == 404) {
+        } catch (Exception e) {
+            if (e instanceof ApiException && ((ApiException)e).getCode() == 404) {
                 return false;
             }else {
                 throw new JobExecutorException(String.format("Cannot read kubernetes job: %s", e.getLocalizedMessage()));
@@ -107,7 +107,7 @@ public class KubernetesJobExecutor implements JobExecutor<KubernetesJobProcess, 
         } catch (JsonSyntaxException e) {
             // Workaround bug https://github.com/kubernetes-client/java/issues/86#issuecomment-334981383
             return true;
-        } catch (ApiException e) {
+        } catch (Exception e) {
             throw new JobExecutorException(String.format("Cannot stop kubernetes job: %s", e.getLocalizedMessage()));
         }
     }
@@ -116,7 +116,7 @@ public class KubernetesJobExecutor implements JobExecutor<KubernetesJobProcess, 
         V1Job job;
         try {
             job = this.getBatchApi().createNamespacedJob(this.getNamespace(), jobSpec, null, null, null);
-        }catch (ApiException e) {
+        } catch (Exception e) {
             throw new JobExecutorException(String.format("Cannot execute kubernetes job: %s", e.getLocalizedMessage()));
         }
 

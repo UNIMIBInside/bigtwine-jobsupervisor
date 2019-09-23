@@ -71,7 +71,7 @@ public class JobSupervisor {
             builder.setJob(newJob);
             executable = builder.build();
         } catch (JobExecutableBuilder.BuildException e) {
-            e.printStackTrace();
+            log.error("Job executable cannot be created", e);
             this.jobService.endJob(newJob.getId(), "Job executable cannot be created: " + e.getLocalizedMessage());
             throw new JobExecutionException(String.format("A job executable for analysis %s cannot be created: %s",
                 analysisId, e.getLocalizedMessage()));
@@ -89,7 +89,7 @@ public class JobSupervisor {
             JobProcess p = this.jobExecutor.execute(executable);
             process = p;
         } catch (JobExecutor.JobExecutorException e) {
-            e.printStackTrace();
+            log.error("Job executable cannot be executed", e);
         }
 
         if (process == null) {
