@@ -16,7 +16,8 @@ public class YamlTemplateKubernetesObjectLoaderTest {
 
     @Test
     public void testLoadTemplate() throws Exception {
-        KubernetesObjectLoader k8sObjLoader = new YamlTemplateKubernetesObjectLoader(getTemplateFile());
+        File template = getTemplateFile();
+        KubernetesObjectLoader k8sObjLoader = new YamlTemplateKubernetesObjectLoader(template);
 
         List<String> command = new ArrayList<>();
         Collections.addAll(command, "/bin/cmd");

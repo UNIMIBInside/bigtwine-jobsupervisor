@@ -38,7 +38,7 @@ public class JobSupervisorK8sConfiguration {
         }
 
         File template = Paths.get(templateUri).toFile();
-        if (!(template.exists() && template.isFile())) {
+        if (!(template.exists() && template.isFile() && template.canRead())) {
             throw new InvalidConfigurationPropertyValueException(
                 "application.twitterNeel.stream.flinkJob.kubernetesTemplate",
                 templateName,

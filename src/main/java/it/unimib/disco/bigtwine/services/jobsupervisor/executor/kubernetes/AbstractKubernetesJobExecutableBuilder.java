@@ -1,5 +1,6 @@
 package it.unimib.disco.bigtwine.services.jobsupervisor.executor.kubernetes;
 
+import io.kubernetes.client.models.V1Job;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.AnalysisInfo;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.Job;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.AbstractJobExecutableBuilder;
@@ -66,7 +67,7 @@ public abstract class AbstractKubernetesJobExecutableBuilder extends AbstractJob
 
         Object k8sObject;
         try {
-            k8sObject = this.kubernetesObjectLoader.getKubernetesObjectSpec(vars);
+            k8sObject = this.kubernetesObjectLoader.getKubernetesObjectSpec(vars, V1Job.class);
         } catch (Exception e) {
             throw new BuildException("Cannot build k8s object spec: " + e.getLocalizedMessage());
         }
