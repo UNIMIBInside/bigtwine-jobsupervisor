@@ -2,6 +2,7 @@ package it.unimib.disco.bigtwine.services.jobsupervisor.config;
 
 import io.github.jhipster.config.JHipsterConstants;
 import io.kubernetes.client.ApiClient;
+import io.kubernetes.client.util.Config;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobExecutableBuilder;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobExecutor;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.kubernetes.KubernetesJobExecutableBuilder;
@@ -25,6 +26,7 @@ import java.nio.file.Paths;
 @Configuration
 @Profile(JHipsterConstants.SPRING_PROFILE_K8S)
 public class JobSupervisorK8sConfiguration {
+    private ApiClient apiClient;
 
     private KubernetesObjectLoader createFlinkTwitterNeelKubernetesObjectLoader(ApplicationProperties props) throws IOException, URISyntaxException {
         String templateName = props.getTwitterNeel().getStream().getFlinkJob().getKubernetesTemplate();
@@ -68,12 +70,17 @@ public class JobSupervisorK8sConfiguration {
     }
 
     @Bean
-    public ApiClient getKubernetesApiClient() {
-        return new ApiClient();
+    public ApiClient getKubernetesApiClient() throws IOException {
+        if (this.apiClient == null) {
+            this.apiClient = io.kubernetes.client.util.Config.fromCluster();
+            io.kubernetes.client.Configuration.setDefaultApiClient(this.apiClient);
+        }
+
+        return apiClient;
     }
 
     @Bean
-    public JobExecutor getKubernetesJobExecutor(ApplicationProperties props) {
+    public JobExecutor getKubernetesJobExecutor(ApplicationProperties props) throws IOException {
         String namespace = props.getKubernetes().getNamespace();
 
         return new KubernetesJobExecutor(getKubernetesApiClient(), namespace);

@@ -101,7 +101,7 @@ public class KubernetesJobExecutor implements JobExecutor<KubernetesJobProcess, 
             .propagationPolicy("Foreground");
 
         try {
-            V1Status status = this.getBatchApi().deleteNamespacedJob(process.getName(), this.getNamespace(), options, null, null, null, false, null);
+            V1Status status = this.getBatchApi().deleteNamespacedJob(process.getName(), this.getNamespace(), null, options, null, null, null, null);
             return status.getCode() == 200;
         } catch (JsonSyntaxException e) {
             // Workaround bug https://github.com/kubernetes-client/java/issues/86#issuecomment-334981383

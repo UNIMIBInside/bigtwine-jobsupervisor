@@ -36,7 +36,7 @@ public class KubernetesJobExecutorIntTest {
     @After
     public void tearDown() throws Exception {
         BatchV1Api api = new BatchV1Api(apiClient);
-        api.deleteCollectionNamespacedJob(K8S_NAMESPACE, null, null, null, null, null, null, null, null, null);
+        api.deleteCollectionNamespacedJob(K8S_NAMESPACE, null, null, null, null, null, null, null, null);
     }
 
     @Test
