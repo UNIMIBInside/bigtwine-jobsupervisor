@@ -27,6 +27,9 @@ public class YamlTemplateKubernetesObjectLoaderTest {
         Map<String, Object> vars = new HashMap<>();
         vars.put("spec.template.spec.containers[0].command", command);
         vars.put("spec.template.spec.containers[0].args", args);
+        vars.put("metadata.labels.job-id", "1111");
+        vars.put("metadata.labels.analysis-id", "2222");
+        vars.put("metadata.labels.analysis-type", "twitter-neel");
 
         V1Job job = k8sObjLoader.getKubernetesObjectSpec(vars, V1Job.class);
 
@@ -40,6 +43,9 @@ public class YamlTemplateKubernetesObjectLoaderTest {
 
         assertNotNull(job2);
         assertEquals("Job", job2.getKind());
+        assertEquals("1111", job2.getMetadata().getLabels().get("job-id"));
+        assertEquals("2222", job2.getMetadata().getLabels().get("analysis-id"));
+        assertEquals("twitter-neel", job2.getMetadata().getLabels().get("analysis-type"));
         assertEquals("/bin/cmd", job2.getSpec().getTemplate().getSpec().getContainers().get(0).getCommand().get(0));
         assertEquals("arg1", job2.getSpec().getTemplate().getSpec().getContainers().get(0).getArgs().get(0));
         assertEquals("100", job2.getSpec().getTemplate().getSpec().getContainers().get(0).getArgs().get(1));

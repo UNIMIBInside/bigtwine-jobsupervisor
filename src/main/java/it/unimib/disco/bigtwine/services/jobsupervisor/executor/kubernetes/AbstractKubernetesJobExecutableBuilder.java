@@ -46,7 +46,7 @@ public abstract class AbstractKubernetesJobExecutableBuilder extends AbstractJob
 
     protected String buildKubernetesObjectName() {
         AnalysisInfo analysis = this.getJob().getAnalysis();
-        return String.format("streamprocessor-%s-%s", this.getJob().getId(), analysis.getId());
+        return String.format("streamprocessor-%s", this.getJob().getId());
     }
 
     protected Object buildKubernetesObject() throws BuildException {
@@ -56,6 +56,10 @@ public abstract class AbstractKubernetesJobExecutableBuilder extends AbstractJob
 
         Map<String, Object> vars = new HashMap<>();
         vars.put("metadata.name", jobName);
+        vars.put("metadata.labels.job-id", job.getId());
+        vars.put("metadata.labels.job-type", job.getJobType());
+        vars.put("metadata.labels.analysis-id", job.getAnalysis().getId());
+        vars.put("metadata.labels.analysis-type", job.getAnalysis().getType());
 
         if (command != null) {
             vars.put("spec.template.spec.containers[0].command", command);

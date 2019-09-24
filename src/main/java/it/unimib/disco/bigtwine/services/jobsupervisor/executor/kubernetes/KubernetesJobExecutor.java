@@ -10,8 +10,11 @@ import io.kubernetes.client.models.V1Status;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobExecutable;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobExecutor;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobProcess;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class KubernetesJobExecutor implements JobExecutor<KubernetesJobProcess, KubernetesJobExecutable> {
+    private static final Logger log = LoggerFactory.getLogger(KubernetesJobExecutor.class);
 
     final private ApiClient apiClient;
     private String namespace;
@@ -89,6 +92,7 @@ public class KubernetesJobExecutor implements JobExecutor<KubernetesJobProcess, 
             if (e instanceof ApiException && ((ApiException)e).getCode() == 404) {
                 return false;
             }else {
+                log.error("Cannot read kubernetes job", e);
                 throw new JobExecutorException(String.format("Cannot read kubernetes job: %s", e.getLocalizedMessage()));
             }
         }
@@ -107,6 +111,7 @@ public class KubernetesJobExecutor implements JobExecutor<KubernetesJobProcess, 
             // Workaround bug https://github.com/kubernetes-client/java/issues/86#issuecomment-334981383
             return true;
         } catch (Exception e) {
+            log.error("Cannot stop kubernetes job", e);
             throw new JobExecutorException(String.format("Cannot stop kubernetes job: %s", e.getLocalizedMessage()));
         }
     }
@@ -116,6 +121,7 @@ public class KubernetesJobExecutor implements JobExecutor<KubernetesJobProcess, 
         try {
             job = this.getBatchApi().createNamespacedJob(this.getNamespace(), jobSpec, null, null, null);
         } catch (Exception e) {
+            log.error("Cannot execute kubernetes job", e);
             throw new JobExecutorException(String.format("Cannot execute kubernetes job: %s", e.getLocalizedMessage()));
         }
 

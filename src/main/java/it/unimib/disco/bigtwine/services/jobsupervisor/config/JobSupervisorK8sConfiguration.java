@@ -2,7 +2,7 @@ package it.unimib.disco.bigtwine.services.jobsupervisor.config;
 
 import io.github.jhipster.config.JHipsterConstants;
 import io.kubernetes.client.ApiClient;
-import io.kubernetes.client.util.Config;
+import io.kubernetes.client.apis.BatchV1Api;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobExecutableBuilder;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobExecutor;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.kubernetes.KubernetesJobExecutableBuilder;
@@ -12,6 +12,8 @@ import it.unimib.disco.bigtwine.services.jobsupervisor.executor.kubernetes.YamlT
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.twitter.neel.FlinkTwitterNeelExportJobExecutableBuilderHelper;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.twitter.neel.FlinkTwitterNeelJobExecutableBuilderHelper;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.source.InvalidConfigurationPropertyValueException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +28,8 @@ import java.nio.file.Paths;
 @Configuration
 @Profile(JHipsterConstants.SPRING_PROFILE_K8S)
 public class JobSupervisorK8sConfiguration {
+    private static final Logger log = LoggerFactory.getLogger(KubernetesJobExecutor.class);
+
     private ApiClient apiClient;
 
     private KubernetesObjectLoader createFlinkTwitterNeelKubernetesObjectLoader(ApplicationProperties props) throws IOException, URISyntaxException {
@@ -71,18 +75,33 @@ public class JobSupervisorK8sConfiguration {
 
     @Bean
     public ApiClient getKubernetesApiClient() throws IOException {
-        if (this.apiClient == null) {
-            this.apiClient = io.kubernetes.client.util.Config.fromCluster();
-            io.kubernetes.client.Configuration.setDefaultApiClient(this.apiClient);
-        }
+        ApiClient client = io.kubernetes.client.util.Config.fromCluster();
+        io.kubernetes.client.Configuration.setDefaultApiClient(client);
 
-        return apiClient;
+        return client;
     }
 
     @Bean
     public JobExecutor getKubernetesJobExecutor(ApplicationProperties props) throws IOException {
         String namespace = props.getKubernetes().getNamespace();
+        if (this.apiClient == null) {
+            ApiClient client = this.getKubernetesApiClient();
+            checkKubernetesAuthorization(client, namespace);
+            this.apiClient = client;
+        }
 
-        return new KubernetesJobExecutor(getKubernetesApiClient(), namespace);
+        return new KubernetesJobExecutor(this.apiClient, namespace);
+    }
+
+    private void checkKubernetesAuthorization(ApiClient apiClient, String namespace) {
+        try {
+            BatchV1Api api = new BatchV1Api(apiClient);
+            api.listNamespacedJob(namespace, null, null, null, null, null, null, null, null);
+        } catch (Exception e) {
+            log.error("Current service account cannot manage Kubernetes jobs in namespace '{}'", namespace, e);
+            throw new RuntimeException("Current service account cannot manage Kubernetes jobs in namespace: '" +
+                namespace + "', nested exception " +
+                e.getLocalizedMessage());
+        }
     }
 }

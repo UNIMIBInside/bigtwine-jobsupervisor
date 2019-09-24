@@ -56,9 +56,9 @@ hystrix:
             execution:
                 isolation:
                     strategy: SEMAPHORE
-# See https://github.com/spring-cloud/spring-cloud-netflix/issues/1330
-#                    thread:
-#                        timeoutInMilliseconds: 10000
+                    # See https://github.com/spring-cloud/spring-cloud-netflix/issues/1330
+                    thread:
+                        timeoutInMilliseconds: 10000
     shareSecurityContext: true
 
 management:
