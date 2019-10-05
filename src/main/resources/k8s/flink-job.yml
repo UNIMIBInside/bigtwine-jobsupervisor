@@ -22,4 +22,11 @@ spec:
                       value: mongodb-0.mongodb.bigtwine
                     - name: KAFKA_BOOTSTRAP_SERVERS
                       value: jhipster-kafka.bigtwine.svc.cluster.local:9092
+                  resources:
+                      requests:
+                          memory: "256Mi"
+                          cpu: "500m"
+                      limits:
+                          memory: "512Mi"
+                          cpu: "1"
             restartPolicy: Never

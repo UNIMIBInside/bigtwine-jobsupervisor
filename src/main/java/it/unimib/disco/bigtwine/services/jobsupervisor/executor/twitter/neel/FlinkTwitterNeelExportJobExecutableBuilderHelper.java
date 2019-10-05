@@ -5,7 +5,6 @@ import it.unimib.disco.bigtwine.services.jobsupervisor.domain.AnalysisInfo;
 import it.unimib.disco.bigtwine.services.jobsupervisor.domain.Job;
 import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobExecutableBuilder;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

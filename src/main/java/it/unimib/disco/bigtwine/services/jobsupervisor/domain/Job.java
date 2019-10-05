@@ -9,13 +9,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.time.Instant;
 
 @Document(collection = "jobs")
 @CompoundIndexes({
     @CompoundIndex(def = "{ 'analysis.id': 1 }", name = "analysis_id")
 })
-public class Job {
+public class Job implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
