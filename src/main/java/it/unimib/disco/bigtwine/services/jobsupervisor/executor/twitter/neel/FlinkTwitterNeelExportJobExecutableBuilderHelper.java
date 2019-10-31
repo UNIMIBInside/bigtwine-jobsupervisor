@@ -50,6 +50,9 @@ public class FlinkTwitterNeelExportJobExecutableBuilderHelper implements JobExec
         Object documentId = analysis
             .getExport()
             .get(AnalysisInfo.ExportKeys.DOCUMENT_ID);
+        Object format = analysis
+            .getExport()
+            .get(AnalysisInfo.ExportKeys.FORMAT);
 
         if (documentId == null) {
             throw new JobExecutableBuilder.BuildException("Export document id not provided");
@@ -60,6 +63,7 @@ public class FlinkTwitterNeelExportJobExecutableBuilderHelper implements JobExec
             "--job-id", job.getId(),
             "--analysis-id", analysis.getId(),
             "--document-id", String.valueOf(documentId),
+            "--format", String.valueOf(format),
             "--heartbeat-interval", String.valueOf(heartbeatInterval)
         );
     }

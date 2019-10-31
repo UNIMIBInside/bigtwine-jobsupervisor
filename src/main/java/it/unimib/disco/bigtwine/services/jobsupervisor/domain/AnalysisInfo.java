@@ -116,5 +116,6 @@ public class AnalysisInfo implements Serializable {
 
     public static class ExportKeys {
         public static final String DOCUMENT_ID = "documentId";
+        public static final String FORMAT = "format";
     }
 }
