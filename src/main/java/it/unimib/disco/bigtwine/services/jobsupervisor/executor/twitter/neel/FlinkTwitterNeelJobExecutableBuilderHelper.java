@@ -175,13 +175,13 @@ public class FlinkTwitterNeelJobExecutableBuilderHelper implements JobExecutable
             String query = this.flattifyAnalysisInput(analysis);
 
             Collections.addAll(args,
-                "--twitter-stream-query", String.format("\"%s\"", SHELL_ESCAPE.escape(query))
+                "--twitter-stream-query", SHELL_ESCAPE.escape(query)
             );
-        } else if (analysis.isBoundingBoxesInputType()) {
+        } else if (analysis.isGeoAreaInputType()) {
             String boundingBoxes = this.flattifyAnalysisInput(analysis);
 
             Collections.addAll(args,
-                "--twitter-stream-locations", String.format("\"%s\"", SHELL_ESCAPE.escape(boundingBoxes))
+                "--twitter-stream-locations", SHELL_ESCAPE.escape(boundingBoxes)
             );
         } else if (analysis.isDatasetInputType()) {
             String documentId = this.flattifyAnalysisInput(analysis);

@@ -76,8 +76,8 @@ public class AnalysisInfo implements Serializable {
         return this._checkInputType(InputType.QUERY);
     }
 
-    public boolean isBoundingBoxesInputType() {
-        return this._checkInputType(InputType.BOUNDING_BOXES);
+    public boolean isGeoAreaInputType() {
+        return this._checkInputType(InputType.GEO_AREA);
     }
 
     public boolean isDatasetInputType() {
@@ -85,7 +85,7 @@ public class AnalysisInfo implements Serializable {
     }
 
     public boolean isStreamAnalysis() {
-        return this.isQueryInputType() || this.isBoundingBoxesInputType();
+        return this.isQueryInputType() || this.isGeoAreaInputType();
     }
 
     public boolean isDatasetAnalysis() {
@@ -106,11 +106,18 @@ public class AnalysisInfo implements Serializable {
 
         // Dataset
         public static final String DOCUMENT_ID = "documentId";
+
+        // Geo Area
+        public static final String BOUNDING_BOXES = "boundingBoxes";
+        public static final String SOUTHWEST_CORDS = "southWestCoords";
+        public static final String NORTHEAST_CORDS = "northEastCoords";
+        public static final String LATITUDE = "latitude";
+        public static final String LONGITUDE = "longitude";
     }
 
     public static class InputType {
         public static final String QUERY = "query";
-        public static final String BOUNDING_BOXES = "bounding-boxes";
+        public static final String GEO_AREA = "geo-area";
         public static final String DATASET = "dataset";
     }
 
