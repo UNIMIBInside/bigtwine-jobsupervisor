@@ -31,6 +31,9 @@ public class Job implements Serializable {
     @Field("analysis")
     private AnalysisInfo analysis;
 
+    @Field("reference")
+    private String reference;
+
     @Field("process")
     private JobProcess process;
 
@@ -83,6 +86,14 @@ public class Job implements Serializable {
 
     public void setAnalysis(AnalysisInfo analysis) {
         this.analysis = analysis;
+    }
+
+    public String getReference() {
+        return reference;
+    }
+
+    public void setReference(String reference) {
+        this.reference = reference;
     }
 
     public JobProcess getProcess() {
@@ -147,5 +158,23 @@ public class Job implements Serializable {
 
     public void setProgress(double progress) {
         this.progress = progress;
+    }
+
+    @Override
+    public String toString() {
+        return "Job{" +
+            "id='" + id + '\'' +
+            ", jobType=" + jobType +
+            ", analysis=" + analysis +
+            ", reference='" + reference + '\'' +
+            ", process=" + process +
+            ", startDate=" + startDate +
+            ", endDate=" + endDate +
+            ", endReason='" + endReason + '\'' +
+            ", lastUpdateDate=" + lastUpdateDate +
+            ", lastHeartbeatDate=" + lastHeartbeatDate +
+            ", running=" + running +
+            ", progress=" + progress +
+            '}';
     }
 }

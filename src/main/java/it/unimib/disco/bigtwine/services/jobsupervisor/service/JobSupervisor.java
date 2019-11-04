@@ -41,19 +41,19 @@ public class JobSupervisor {
         this.jobExecutableBuilderLocator = jobExecutableBuilderLocator;
     }
 
-    private Job startAnalysisJob(JobType jobType, String analysisId) throws JobExecutionException {
+    private Job startAnalysisJob(JobType jobType, String analysisId, String reference) throws JobExecutionException {
         if (jobType == null || analysisId == null) {
             throw new IllegalArgumentException("jobType and analysisId must not be null");
         }
 
         Job newJob;
         try {
-            newJob = this.jobService.createRunningJobForAnalysis(analysisId, jobType);
+            newJob = this.jobService.createRunningJobForAnalysis(analysisId, jobType, reference);
         } catch (JobService.NoSuchAnalysisException e) {
-            throw new JobExecutionException(String.format("Analysis with id %s not found", analysisId));
+            throw new JobExecutionException(String.format("Analysis with id %s not found", analysisId), e);
         } catch (JobService.JobAlreadyRunningExecption e){
             throw new JobExecutionException(String.format("A job with type %s for analysis %s is running already (job id %s)",
-                jobType, analysisId, e.getRunningJob().getId()));
+                jobType, analysisId, e.getRunningJob().getId()), e);
         }
 
         JobExecutableBuilder builder;
@@ -63,7 +63,7 @@ public class JobSupervisor {
             log.debug("Job executable builder not found", e);
             this.jobService.endJob(newJob.getId(), "Job executable builder not found");
             throw new JobExecutionException(String.format("Job executable builder for analysis %s not available",
-                analysisId));
+                analysisId), e);
         }
 
         JobExecutable executable;
@@ -74,7 +74,7 @@ public class JobSupervisor {
             log.error("Job executable cannot be created", e);
             this.jobService.endJob(newJob.getId(), "Job executable cannot be created: " + e.getLocalizedMessage());
             throw new JobExecutionException(String.format("A job executable for analysis %s cannot be created: %s",
-                analysisId, e.getLocalizedMessage()));
+                analysisId, e.getLocalizedMessage()), e);
         }
 
         if (!this.jobExecutor.test(executable)) {
@@ -84,21 +84,27 @@ public class JobSupervisor {
         }
 
         JobProcess process = null;
+        Throwable cause = null;
         try {
             @SuppressWarnings("unchecked")
             JobProcess p = this.jobExecutor.execute(executable);
             process = p;
         } catch (JobExecutor.JobExecutorException e) {
             log.error("Job executable cannot be executed", e);
+            cause = e;
         }
 
         if (process == null) {
             this.jobService.endJob(newJob.getId(), "Job executable cannot be launched");
             throw new JobExecutionException(String.format("Job executable for analysis %s cannot be launched",
-                analysisId));
+                analysisId), cause);
         }
 
         return this.jobService.updateJobProcess(newJob.getId(), process);
+    }
+
+    private Job startAnalysisJob(JobType jobType, String analysisId) throws JobExecutionException {
+        return this.startAnalysisJob(jobType, analysisId, null);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -147,12 +153,14 @@ public class JobSupervisor {
         }
 
         boolean stopped = false;
+        Throwable cause = null;
         try {
             @SuppressWarnings("unchecked")
             boolean s = this.jobExecutor.stop(job.getProcess());
             stopped = s;
         } catch (JobExecutor.JobExecutorException e) {
-            e.printStackTrace();
+            log.error("Cannot stop job", e);
+            cause = e;
         }
 
         if (stopped) {
@@ -163,7 +171,7 @@ public class JobSupervisor {
             }
 
             throw new JobExecutionException(String.format("Running job executable for analysis %s cannot be stopped",
-                analysisId));
+                analysisId), cause);
         }
 
         return job;
@@ -228,7 +236,12 @@ public class JobSupervisor {
                 this.startAnalysisJob(analysisId);
                 newStatus = AnalysisStatusEnum.STARTED;
             } catch (JobExecutionException e) {
-                newStatus = AnalysisStatusEnum.FAILED;
+                if (e.getCause() instanceof JobService.JobAlreadyRunningExecption) {
+                    newStatus = null;
+                } else {
+                    newStatus = AnalysisStatusEnum.FAILED;
+                }
+
                 failMessage = e.getMessage();
                 e.printStackTrace();
             }
@@ -267,7 +280,7 @@ public class JobSupervisor {
         try {
             switch (event.getAction()) {
                 case START:
-                    startAnalysisJob(JobType.valueOf(event.getJobType().name()), event.getAnalysisId());
+                    startAnalysisJob(JobType.valueOf(event.getJobType().name()), event.getAnalysisId(), event.getReference());
                     break;
                 case STOP:
                     stopJob(event.getJobId(), false);
@@ -334,6 +347,10 @@ public class JobSupervisor {
     public class JobExecutionException extends Exception {
         public JobExecutionException(String message) {
             super(message);
+        }
+
+        public JobExecutionException(String message, Throwable cause) {
+            super(message, cause);
         }
     }
 }

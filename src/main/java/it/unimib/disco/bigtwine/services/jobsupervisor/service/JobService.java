@@ -30,7 +30,7 @@ public class JobService {
     }
 
     @Transactional
-    public Job createRunningJobForAnalysis(String analysisId, JobType jobType) throws JobAlreadyRunningExecption {
+    public Job createRunningJobForAnalysis(String analysisId, JobType jobType, String reference) throws JobAlreadyRunningExecption {
         AnalysisInfo analysis;
 
         if (jobType == null) {
@@ -53,6 +53,7 @@ public class JobService {
         Job job = new Job();
         job.setAnalysis(analysis);
         job.setJobType(jobType);
+        job.setReference(reference);
         job.setRunning(true);
         job.setStartDate(now);
         job.setLastUpdateDate(now);
@@ -61,8 +62,13 @@ public class JobService {
     }
 
     @Transactional
+    public Job createRunningJobForAnalysis(String analysisId, JobType jobType) throws JobAlreadyRunningExecption {
+        return this.createRunningJobForAnalysis(analysisId, jobType, null);
+    }
+
+    @Transactional
     public Job createRunningJobForAnalysis(String analysisId) throws JobAlreadyRunningExecption {
-        return this.createRunningJobForAnalysis(analysisId, JobType.DEFAULT);
+        return this.createRunningJobForAnalysis(analysisId, JobType.DEFAULT, null);
     }
 
     @Transactional
