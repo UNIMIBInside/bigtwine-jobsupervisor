@@ -7,6 +7,7 @@ import it.unimib.disco.bigtwine.services.jobsupervisor.executor.JobExecutableBui
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class FlinkTwitterNeelExportJobExecutableBuilderHelper implements JobExecutableBuilder.BuilderHelper {
     private final ApplicationProperties applicationProperties;
@@ -47,13 +48,19 @@ public class FlinkTwitterNeelExportJobExecutableBuilderHelper implements JobExec
             .getStream()
             .getHeartbeat();
 
-        Object documentId = analysis
-            .getExport()
-            .get(AnalysisInfo.ExportKeys.DOCUMENT_ID);
-        Object format = analysis
-            .getExport()
-            .get(AnalysisInfo.ExportKeys.FORMAT);
+        String format = job.getReference();
+        if (analysis.getExports() == null || format == null) {
+            throw new JobExecutableBuilder.BuildException("Export not available");
+        }
 
+        Map<String, Object> export = analysis
+            .getExports()
+            .stream()
+            .filter(e -> format.equals(e.get(AnalysisInfo.ExportKeys.FORMAT)))
+            .findFirst()
+            .orElseThrow(() -> new JobExecutableBuilder.BuildException("Cannot find an export configuration for format " + format));
+
+        Object documentId = export.get(AnalysisInfo.ExportKeys.DOCUMENT_ID);
         if (documentId == null) {
             throw new JobExecutableBuilder.BuildException("Export document id not provided");
         }
@@ -63,7 +70,7 @@ public class FlinkTwitterNeelExportJobExecutableBuilderHelper implements JobExec
             "--job-id", job.getId(),
             "--analysis-id", analysis.getId(),
             "--document-id", String.valueOf(documentId),
-            "--format", String.valueOf(format),
+            "--format", format,
             "--heartbeat-interval", String.valueOf(heartbeatInterval)
         );
     }

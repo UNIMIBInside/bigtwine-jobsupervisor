@@ -2,6 +2,7 @@ package it.unimib.disco.bigtwine.services.jobsupervisor.domain;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 public class AnalysisInfo implements Serializable {
@@ -11,7 +12,7 @@ public class AnalysisInfo implements Serializable {
     private UserInfo owner;
     private Map<String, Object> input;
     private Map<String, Object> settings;
-    private Map<String, Object> export;
+    private List<Map<String, Object>> exports;
 
     public AnalysisInfo() {
     }
@@ -56,12 +57,12 @@ public class AnalysisInfo implements Serializable {
         this.settings = settings;
     }
 
-    public Map<String, Object> getExport() {
-        return export;
+    public List<Map<String, Object>> getExports() {
+        return exports;
     }
 
-    public void setExport(Map<String, Object> export) {
-        this.export = export;
+    public void setExports(List<Map<String, Object>> exports) {
+        this.exports = exports;
     }
 
     public String getInputType() {

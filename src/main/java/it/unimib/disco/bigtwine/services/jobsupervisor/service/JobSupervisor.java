@@ -202,6 +202,7 @@ public class JobSupervisor {
     private void notifyAnalysisProgressUpdate(
         String analysisId,
         JobType jobType,
+        String reference,
         double progress,
         boolean isCompleted,
         boolean isFailed,
@@ -210,6 +211,7 @@ public class JobSupervisor {
         AnalysisProgressUpdateEvent event = new AnalysisProgressUpdateEvent();
         event.setAnalysisId(analysisId);
         event.setJobType(JobTypeEnum.valueOf(jobType.name()));
+        event.setReference(reference);
         event.setProgress(progress);
         event.setFailed(isFailed);
         event.setCompleted(isCompleted);
@@ -315,6 +317,7 @@ public class JobSupervisor {
                 this.notifyAnalysisProgressUpdate(
                     job.getAnalysis().getId(),
                     job.getJobType(),
+                    job.getReference(),
                     job.getProgress(),
                     event.isLast(),
                     event.isFailed(),
