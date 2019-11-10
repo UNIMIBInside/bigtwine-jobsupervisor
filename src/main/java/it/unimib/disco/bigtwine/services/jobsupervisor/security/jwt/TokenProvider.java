@@ -90,7 +90,10 @@ public class TokenProvider {
     public String createSystemToken() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(AuthoritiesConstants.ADMIN));
-        Authentication authentication = new UsernamePasswordAuthenticationToken(Constants.SYSTEM_ACCOUNT, null, authorities);
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(Constants.SYSTEM_ACCOUNT, null, authorities);
+        Map<String, Object> userDetails = new HashMap<>();
+        userDetails.put("user_id", Constants.SYSTEM_ACCOUNT);
+        authentication.setDetails(userDetails);
 
         return this.createToken(authentication, false);
     }
