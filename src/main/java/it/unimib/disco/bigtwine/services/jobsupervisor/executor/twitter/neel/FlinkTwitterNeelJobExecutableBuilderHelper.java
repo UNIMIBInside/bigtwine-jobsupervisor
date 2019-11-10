@@ -149,17 +149,17 @@ public class FlinkTwitterNeelJobExecutableBuilderHelper implements JobExecutable
                 "--heartbeat-interval", streamHeartbeat);
 
             if (analysis.getSettings() != null) {
-                Object streamLangSet = analysis.getSettings().get("stream-lang");
+                Object streamLangSet = analysis.getSettings().get("twitter-stream-lang");
                 if (streamLangSet instanceof String && StringUtils.isNotBlank((String)streamLangSet)) {
                     streamLang = (String)streamLangSet;
                 }
 
-                Object streamSamplingSet = analysis.getSettings().get("stream-sampling");
+                Object streamSamplingSet = analysis.getSettings().get("twitter-stream-sampling");
                 if (streamSamplingSet instanceof Integer) {
                     streamSampling = String.valueOf(streamSamplingSet);
                 }
 
-                Object streamSkipRetweetsSet = analysis.getSettings().get("stream-skip-retweets");
+                Object streamSkipRetweetsSet = analysis.getSettings().get("twitter-stream-skip-retweets");
                 if (streamSkipRetweetsSet instanceof Boolean) {
                     streamSkipRetweets = String.valueOf(streamSkipRetweetsSet);
                 }
