@@ -213,7 +213,7 @@ dependencies {
     //jhipster-needle-gradle-dependency - JHipster will add additional dependencies here
     compile "io.kubernetes:client-java:6.0.1"
     compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.3'
-    compile group: 'org.bitbucket.bigtwine', name: 'commons', version: '086a7f7d09'
+    compile group: 'com.github.UNIMIBInside', name: 'bigtwine-commons', version: '086a7f7d09'
 
 }
 
